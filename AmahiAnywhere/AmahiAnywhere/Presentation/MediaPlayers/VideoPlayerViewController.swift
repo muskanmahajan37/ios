@@ -33,6 +33,9 @@ class VideoPlayerViewController: UIViewController {
     private var hasMediaFileParseFinished = false
     private var hasPlayStarted = false
     
+    // To find later whether the user tapped the left or the right part of the screen
+    var touchLocationToFindTap = 0.0
+    
     fileprivate static let IntervalForFastRewindAndFastForward: Int32 = 15
     
     override func viewDidLoad() {
@@ -48,8 +51,21 @@ class VideoPlayerViewController: UIViewController {
         let gesture = UITapGestureRecognizer(target: self, action:  #selector(userTouchScreen))
         gesture.delegate = self
         gesture.cancelsTouchesInView = false
+        gesture.numberOfTapsRequired = 1
         movieView.isUserInteractionEnabled = true
         movieView.addGestureRecognizer(gesture)
+        
+        // To detect double taps for moving the video
+        let gesture2 = UITapGestureRecognizer(target: self, action:  #selector(moveVideoHead))
+        gesture2.delegate = self
+        gesture2.cancelsTouchesInView = false
+        gesture2.numberOfTapsRequired = 2
+        print(gesture2.location(in: self.movieView))
+        movieView.isUserInteractionEnabled = true
+        movieView.addGestureRecognizer(gesture2)
+        
+        // To detect second tap after the first one
+        gesture.require(toFail: gesture2)
         
         let videoControlsTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(resetScreenIdleTimer))
         videoControlsTapGestureRecognizer.cancelsTouchesInView = false
@@ -59,6 +75,37 @@ class VideoPlayerViewController: UIViewController {
         listenForNotifications()
         self.setUpIndicatorLayers(imageView: rewindIndicator)
         self.setUpIndicatorLayers(imageView: forwardIndicator)
+    }
+    
+    @objc func moveVideoHead(){
+        if touchLocationToFindTap < Double(UIScreen.main.bounds.width/2) {
+            mediaPlayer?.jumpBackward(15)
+            let labelBackward:UILabel = UILabel(frame: CGRect(x: UIScreen.main.bounds.minX + 10, y: UIScreen.main.bounds.height/2, width: 100, height: 50))
+            labelBackward.text = "<< 15 seconds"
+            labelBackward.sizeToFit()
+            labelBackward.textAlignment = .left
+            labelBackward.textColor = UIColor.white
+            labelBackward.backgroundColor = UIColor.lightGray.withAlphaComponent(0.7)
+            self.view.addSubview(labelBackward)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                labelBackward.removeFromSuperview()
+            }
+        }
+        else {
+            mediaPlayer?.jumpForward(15)
+            let labelForward:UILabel = UILabel(frame: CGRect(x: UIScreen.main.bounds.maxX - 120, y: UIScreen.main.bounds.height/2, width: 100, height: 50))
+            labelForward.text = "15 seconds >>"
+            labelForward.sizeToFit()
+            labelForward.textAlignment = .right
+            labelForward.textColor = UIColor.white
+            labelForward.backgroundColor = UIColor.lightGray.withAlphaComponent(0.7)
+            self.view.addSubview(labelForward)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                labelForward.removeFromSuperview()
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -93,6 +140,12 @@ class VideoPlayerViewController: UIViewController {
             idleTimer = nil
         }
         self.keepScreenOn(enabled: false)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            touchLocationToFindTap = Double(touch.location(in: view).x)
+        }
     }
     
     func listenForNotifications() {
