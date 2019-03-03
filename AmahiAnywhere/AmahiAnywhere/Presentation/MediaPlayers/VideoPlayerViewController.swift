@@ -79,32 +79,14 @@ class VideoPlayerViewController: UIViewController {
     
     @objc func moveVideoHead(){
         if touchLocationToFindTap < Double(UIScreen.main.bounds.width/2) {
-            mediaPlayer?.jumpBackward(15)
-            let labelBackward:UILabel = UILabel(frame: CGRect(x: UIScreen.main.bounds.minX + 10, y: UIScreen.main.bounds.height/2, width: 100, height: 50))
-            labelBackward.text = "<< 15 seconds"
-            labelBackward.sizeToFit()
-            labelBackward.textAlignment = .left
-            labelBackward.textColor = UIColor.white
-            labelBackward.backgroundColor = UIColor.lightGray.withAlphaComponent(0.7)
-            self.view.addSubview(labelBackward)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                labelBackward.removeFromSuperview()
-            }
+            mediaPlayer?.jumpBackward(VideoPlayerViewController.IntervalForFastRewindAndFastForward)
+            self.showIndicator(imageView: rewindIndicator)
+            resetTimeAfterStateChanged()
         }
         else {
-            mediaPlayer?.jumpForward(15)
-            let labelForward:UILabel = UILabel(frame: CGRect(x: UIScreen.main.bounds.maxX - 120, y: UIScreen.main.bounds.height/2, width: 100, height: 50))
-            labelForward.text = "15 seconds >>"
-            labelForward.sizeToFit()
-            labelForward.textAlignment = .right
-            labelForward.textColor = UIColor.white
-            labelForward.backgroundColor = UIColor.lightGray.withAlphaComponent(0.7)
-            self.view.addSubview(labelForward)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                labelForward.removeFromSuperview()
-            }
+            mediaPlayer?.jumpForward(VideoPlayerViewController.IntervalForFastRewindAndFastForward)
+            self.showIndicator(imageView: forwardIndicator)
+            resetTimeAfterStateChanged()
         }
     }
     
