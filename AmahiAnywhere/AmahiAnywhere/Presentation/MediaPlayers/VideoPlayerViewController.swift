@@ -24,6 +24,8 @@ class VideoPlayerViewController: UIViewController {
     @IBOutlet weak var rewindIndicator: UIImageView!
     @IBOutlet weak var forwardIndicator: UIImageView!
     @IBOutlet weak var timeSlider: UISlider!
+    @IBOutlet weak var volumeView: UIView!
+    @IBOutlet weak var volumeLabel: UILabel!
     
     // Set the media url from the presenting Viewcontroller
     private var idleTimer: Timer?
@@ -67,6 +69,10 @@ class VideoPlayerViewController: UIViewController {
         // To detect second tap after the first one
         gesture.require(toFail: gesture2)
         
+        // For volume change
+        let panGesture = UIPanGestureRecognizer(target: self, action:#selector(handlePanGesture))
+        movieView.addGestureRecognizer(panGesture)
+        
         let videoControlsTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(resetScreenIdleTimer))
         videoControlsTapGestureRecognizer.cancelsTouchesInView = false
         videoControlsView.isUserInteractionEnabled = true
@@ -77,21 +83,14 @@ class VideoPlayerViewController: UIViewController {
         self.setUpIndicatorLayers(imageView: forwardIndicator)
     }
     
-    @objc func moveVideoHead(){
-        if touchLocationToFindTap < Double(UIScreen.main.bounds.width/2) {
-            mediaPlayer?.jumpBackward(VideoPlayerViewController.IntervalForFastRewindAndFastForward)
-            self.showIndicator(imageView: rewindIndicator)
-            resetTimeAfterStateChanged()
-        }
-        else {
-            mediaPlayer?.jumpForward(VideoPlayerViewController.IntervalForFastRewindAndFastForward)
-            self.showIndicator(imageView: forwardIndicator)
-            resetTimeAfterStateChanged()
-        }
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        volumeView.layer.cornerRadius = 10
+        volumeView.alpha = 0
+        
+        // To set a default volume
+        mediaPlayer?.audio.volume = Int32(125)
         
         mediaPlayer = VLCMediaPlayer()
         mediaPlayer?.delegate = self
@@ -127,6 +126,55 @@ class VideoPlayerViewController: UIViewController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
             touchLocationToFindTap = Double(touch.location(in: view).x)
+        }
+    }
+    
+    @objc func handlePanGesture(panGesture: UIPanGestureRecognizer) {
+        
+        // Adding the volume label to the view
+        self.movieView.addSubview(self.volumeView)
+        
+        // Dealing with panGesture's states
+        if panGesture.state == .began {
+            self.volumeView.alpha = 0.8
+        }
+        else if panGesture.state == .ended {
+            UIView.animate(withDuration: 1.8) {
+                self.volumeView.alpha = 0
+            }
+        }
+        else {
+            self.volumeView.alpha = 0.8
+        }
+        
+        // Finding the movement of the panGesture and updating the volume label
+        let speed = panGesture.velocity(in: self.view)
+        let vertical = abs(speed.y) > abs(speed.x)
+        if vertical == true {
+            if speed.y > 0 {
+                self.mediaPlayer?.audio.volume -= 2
+                volumeLabel.text = "Volume: \(abs((mediaPlayer?.audio.volume)!/2))"
+            }
+            else if speed.y < 0 {
+                mediaPlayer?.audio.volume = (mediaPlayer?.audio.volume)! + Int32(1)
+                volumeLabel.text = "Volume: \(abs((mediaPlayer?.audio.volume)!/2))"
+            }
+            else {
+                print("Ideal Pan Gesture//Volume Change")
+            }
+        }
+    }
+    
+    @objc func moveVideoHead(){
+        if touchLocationToFindTap < Double(UIScreen.main.bounds.width/2) {
+            mediaPlayer?.jumpBackward(VideoPlayerViewController.IntervalForFastRewindAndFastForward)
+            self.showIndicator(imageView: rewindIndicator)
+            resetTimeAfterStateChanged()
+        }
+        else {
+            mediaPlayer?.jumpForward(VideoPlayerViewController.IntervalForFastRewindAndFastForward)
+            self.showIndicator(imageView: forwardIndicator)
+            resetTimeAfterStateChanged()
         }
     }
     
