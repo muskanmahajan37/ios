@@ -44,7 +44,7 @@ extension OfflineFilesTableViewController {
         else {
             imageName = "file"
         }
-        cell.thumbnailImage.sd_setImage(with: offlineFile.remoteFileURL().absoluteURL, placeholderImage: UIImage(named: imageName))
+        cell.thumbnailImage.sd_setImage(with: offlineFile.remoteFileURL().absoluteURL, placeholderImage: UIImage(named: imageName),options:.refreshCached)
       
         if offlineFile.stateEnum != .downloading {
             cell.progressView.isHidden = true

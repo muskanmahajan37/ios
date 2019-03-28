@@ -40,7 +40,7 @@ extension FilesViewController : UITableViewDelegate, UITableViewDataSource {
             else {
                 imageName = "file"
             }
-            cell.thumbnailImage.sd_setImage(with: URL(string: ServerApi.shared!.getFileUri(serverFile).absoluteString), placeholderImage: UIImage(named: imageName))
+            cell.thumbnailImage.sd_setImage(with: URL(string: ServerApi.shared!.getFileUri(serverFile).absoluteString), placeholderImage: UIImage(named: imageName), options: .refreshCached)
             
             let tap = UITapGestureRecognizer(target: self, action: #selector(userClickMenu(sender:)))
             tap.cancelsTouchesInView = true
