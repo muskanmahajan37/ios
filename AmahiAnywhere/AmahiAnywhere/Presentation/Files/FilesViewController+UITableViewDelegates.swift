@@ -8,6 +8,7 @@
 
 import Foundation
 import SDWebImage
+import Lightbox
 
 extension FilesViewController : UITableViewDelegate, UITableViewDataSource {
     
@@ -16,6 +17,13 @@ extension FilesViewController : UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // Configuring Lightbox to use SDWebImage for caching images
+        LightboxConfig.loadImage = {
+            imageView, URL, completion in
+            imageView.sd_setImage(with: URL, placeholderImage: nil, options: .refreshCached)
+            completion?(nil)
+        }
+        
         let serverFile = filteredFiles[indexPath.row]
         if serverFile.isDirectory() {
             let cell = tableView.dequeueReusableCell(withIdentifier: "ServerDirectoryTableViewCell", for: indexPath)
