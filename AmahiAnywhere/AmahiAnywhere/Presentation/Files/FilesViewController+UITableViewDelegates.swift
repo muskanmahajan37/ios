@@ -20,8 +20,9 @@ extension FilesViewController : UITableViewDelegate, UITableViewDataSource {
         // Configuring Lightbox to use SDWebImage for caching images
         LightboxConfig.loadImage = {
             imageView, URL, completion in
-            imageView.sd_setImage(with: URL, placeholderImage: nil, options: .refreshCached)
-            completion?(nil)
+            imageView.sd_setImage(with: URL, placeholderImage: nil, options: .refreshCached, completed: { (image, data, error, true) in
+                completion?(nil)
+            })
         }
         
         let serverFile = filteredFiles[indexPath.row]
