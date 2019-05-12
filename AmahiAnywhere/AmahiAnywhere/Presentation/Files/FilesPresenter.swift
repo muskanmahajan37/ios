@@ -27,7 +27,7 @@ internal protocol FilesView : BaseView {
     func webViewOpenContent(at url: URL, mimeType: MimeType)
     
     func shareFile(at url: URL, from sender : UIView?)
-
+    
     func updateDownloadProgress(for row: Int, downloadJustStarted: Bool, progress: Float)
     
     func dismissProgressIndicator(at url: URL, completion: @escaping () -> Void)
@@ -61,7 +61,7 @@ internal class FilesPresenter: BasePresenter {
             self.view?.updateRefreshing(isRefreshing: false)
             
             guard let serverFiles = serverFilesResponse else {
-                self.view?.showError(message: StringLiterals.GENERIC_NETWORK_ERROR)
+                self.view?.showError(message: StringLiterals.genericNetworkError)
                 return
             }
             
@@ -100,6 +100,8 @@ internal class FilesPresenter: BasePresenter {
         
         let type = Mimes.shared.match(file.mime_type!)
         
+        AmahiLogger.log(": Matched type is \(type) , File MIMETYPE \(file.mime_type)")
+        
         switch type {
             
         case MimeType.image:
@@ -109,16 +111,20 @@ internal class FilesPresenter: BasePresenter {
             self.view?.present(controller)
             break
             
-        case MimeType.video:
+        case MimeType.video, MimeType.flacMedia:
             // TODO: open VideoPlayer and play the file
-            let url = ServerApi.shared!.getFileUri(file)
+            guard let url = ServerApi.shared!.getFileUri(file) else {
+                AmahiLogger.log("Invalid file URL, file cannot be opened")
+                return
+            }
+            
             self.view?.playMedia(at: url)
             break
             
         case MimeType.audio:
             let audioURLs = prepareAudioItems(files)
             var arrangedURLs = [URL]()
-                
+            
             for (index, url) in audioURLs.enumerated() {
                 if (index < fileIndex) {
                     arrangedURLs.insert(url, at: arrangedURLs.endIndex)
@@ -163,7 +169,7 @@ internal class FilesPresenter: BasePresenter {
     
     public func shareFile(_ file: ServerFile, fileIndex: Int,from sender : UIView?) {
         let type = Mimes.shared.match(file.mime_type!)
-
+        
         if FileManager.default.fileExistsInCache(file){
             let path = FileManager.default.localPathInCache(for: file)
             self.view?.shareFile(at: path, from: sender)
@@ -184,11 +190,16 @@ internal class FilesPresenter: BasePresenter {
             path.removeFirst()
         }
         
+        guard let url = ServerApi.shared!.getFileUri(serverFile) else {
+            AmahiLogger.log("Invalid file URL, file cannot be downloaded")
+            return
+        }
+        
         let offlineFile = OfflineFile(name: serverFile.getNameOnly(),
                                       mime: serverFile.mime_type!,
                                       size: serverFile.size!,
                                       mtime: serverFile.mtime!,
-                                      fileUri: ServerApi.shared!.getFileUri(serverFile).absoluteString,
+                                      fileUri: url.absoluteString,
                                       localPath: path,
                                       progress: 1,
                                       state: OfflineFileState.downloading,
@@ -200,10 +211,10 @@ internal class FilesPresenter: BasePresenter {
     }
     
     private func downloadFile(at fileIndex: Int ,
-                      _ serverFile: ServerFile,
-                      mimeType: MimeType,
-                      from sender : UIView?,
-                      completion: @escaping (_ filePath: URL) -> Void) {
+                              _ serverFile: ServerFile,
+                              mimeType: MimeType,
+                              from sender : UIView?,
+                              completion: @escaping (_ filePath: URL) -> Void) {
         
         self.view?.updateDownloadProgress(for: fileIndex, downloadJustStarted: true, progress: 0.0)
         
@@ -218,7 +229,7 @@ internal class FilesPresenter: BasePresenter {
         }, completion: { (wasSuccessful) in
             
             if !wasSuccessful  {
-                self.view?.showError(message: StringLiterals.ERROR_DOWNLOADING_FILE)
+                self.view?.showError(message: StringLiterals.errorDownloadingFileMessage)
                 return
             }
             
@@ -234,31 +245,25 @@ internal class FilesPresenter: BasePresenter {
         var images: [LightboxImage] = [LightboxImage] ()
         for file in files {
             if (Mimes.shared.match(file.mime_type!) == MimeType.image) {
-                images.append(LightboxImage(imageURL: ServerApi.shared!.getFileUri(file), text: file.name!))
+                guard let url = ServerApi.shared!.getFileUri(file) else {
+                    AmahiLogger.log("Invalid file URL, file cannot be opened")
+                    continue
+                }
+                images.append(LightboxImage(imageURL: url, text: file.name!))
             }
         }
         return images
     }
     
-//    private func prepareAudioItems(_ files: [ServerFile]) -> [AVPlayerItem] {
-//        var audioItems = [AVPlayerItem]()
-//
-//        for file in files {
-//            if (Mimes.shared.match(file.mime_type!) == MimeType.audio) {
-//                let url = ServerApi.shared!.getFileUri(file)
-//                let item = AVPlayerItem(url: url)
-//                audioItems.append(item)
-//            }
-//        }
-//        return audioItems
-//    }
-//
     private func prepareAudioItems(_ files: [ServerFile]) -> [URL] {
         var audioURLs = [URL]()
         
         for file in files {
             if (Mimes.shared.match(file.mime_type!) == MimeType.audio) {
-                let url = ServerApi.shared!.getFileUri(file)
+                guard let url = ServerApi.shared!.getFileUri(file) else {
+                    AmahiLogger.log("Invalid file URL, file cannot be opened")
+                    continue
+                }
                 audioURLs.append(url)
             }
         }
@@ -269,15 +274,15 @@ internal class FilesPresenter: BasePresenter {
         
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "OfflineFile")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "downloadDate", ascending: false)]
-
+        
         let delegate = UIApplication.shared.delegate as! AppDelegate
         let stack = delegate.stack
-                
+        
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest,
                                                               managedObjectContext: stack.context,
                                                               sectionNameKeyPath: nil, cacheName: nil)
         if let files = fetchedResultsController?.fetchedObjects as! [OfflineFile]? {
-     
+            
             var dictionary = [String : OfflineFile]()
             
             for file in files {

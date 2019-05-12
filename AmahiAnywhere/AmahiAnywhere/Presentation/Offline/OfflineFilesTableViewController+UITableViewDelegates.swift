@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SDWebImage
 
 extension OfflineFilesTableViewController {
     
@@ -15,27 +16,23 @@ extension OfflineFilesTableViewController {
         let offlineFile = fetchedResultsController!.object(at: indexPath) as! OfflineFile
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "OfflineFileTableViewCell", for: indexPath) as! OfflineFileTableViewCell
-        cell.fileNameLabel?.text = offlineFile.name
-        cell.fileSizeLabel?.text = offlineFile.getFileSize()
-        cell.downloadDateLabel?.text = offlineFile.downloadDate?.asString
-        cell.progressView.setProgress(offlineFile.progress, animated: false)
+        cell.offlineFile = offlineFile
         
-        let image = cell.brokenIndicatorImageView.image
-        let templateImage = image?.withRenderingMode(.alwaysTemplate)
-        cell.brokenIndicatorImageView.image = templateImage
-        cell.brokenIndicatorImageView.tintColor = UIColor.brokenIndicatorRed
+        cell.progressView.setProgress(offlineFile.progress, animated: false)
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(userClickMenu(sender:)))
         tap.cancelsTouchesInView = true
         cell.menuImageView.isUserInteractionEnabled = true
         cell.menuImageView.addGestureRecognizer(tap)
-      
+        
         if offlineFile.stateEnum != .downloading {
             cell.progressView.isHidden = true
         } else {
-            let keyExists = DownloadService.shared.activeDownloads[offlineFile.remoteFileURL()] != nil
-            if !keyExists {
-                offlineFile.stateEnum = .completedWithError
+            if let remoteUrl = offlineFile.remoteFileURL() {
+                let keyExists = DownloadService.shared.activeDownloads[remoteUrl] != nil
+                if !keyExists {
+                    offlineFile.stateEnum = .completedWithError
+                }
             }
         }
         
@@ -55,7 +52,7 @@ extension OfflineFilesTableViewController {
         
         let offlineFile = self.fetchedResultsController!.object(at: indexPath) as! OfflineFile
         
-        let delete = UITableViewRowAction(style: .destructive, title: StringLiterals.DELETE) { (action, indexPath) in
+        let delete = UITableViewRowAction(style: .destructive, title: StringLiterals.delete) { (action, indexPath) in
             
             // Delete file in downloads directory
             let fileManager = FileManager.default
@@ -75,7 +72,7 @@ extension OfflineFilesTableViewController {
         }
         delete.backgroundColor = UIColor.red
         
-        let share = UITableViewRowAction(style: .normal, title: StringLiterals.SHARE) { (action, indexPath) in
+        let share = UITableViewRowAction(style: .normal, title: StringLiterals.share) { (action, indexPath) in
             
             guard let url = FileManager.default.localFilePathInDownloads(for: offlineFile) else { return }
             self.shareFile(at: url, from: tableView.cellForRow(at: indexPath))
