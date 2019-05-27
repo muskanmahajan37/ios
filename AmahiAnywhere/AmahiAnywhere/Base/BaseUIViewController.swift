@@ -8,8 +8,24 @@
 
 import UIKit
 import Foundation
+import GoogleCast
 
 class BaseUIViewController: UIViewController {
+    
+    override func viewDidLoad() {
+      //  let castButton = GCKUICastButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+        //castButton.tintColor = UIColor.gray
+        //navigationItem.rightBarButtonItem = UIBarButtonItem(customView: castButton)
+          let castButton = UIButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+        castButton.tintColor = UIColor.red
+       // navigationItem.rightBarButtonItem = UIBarButtonItem(customView: castButton)
+        self.navigationController?.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: castButton)
+        
+        print("#############")
+        print("#############")
+        print("#############")
+        print("#############")
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

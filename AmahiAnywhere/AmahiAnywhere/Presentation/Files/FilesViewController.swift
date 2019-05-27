@@ -9,6 +9,7 @@
 import UIKit
 import Lightbox
 import AVFoundation
+import GoogleCast
 
 class FilesViewController: BaseUIViewController {
     
@@ -54,6 +55,12 @@ class FilesViewController: BaseUIViewController {
         filesTableView.addGestureRecognizer(longPressGesture)
         
         self.navigationItem.title = getTitle()
+        
+      /*  let castButton = UIButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+        castButton.tintColor = UIColor.red
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: castButton)*/
+        
+     
         
         presenter.getFiles(share, directory: directory)
     }

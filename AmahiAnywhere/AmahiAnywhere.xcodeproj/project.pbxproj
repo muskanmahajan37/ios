@@ -84,6 +84,7 @@
 		FB71BE9D201CB2FC0005492C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FB71BE9B201CB2FC0005492C /* Main.storyboard */; };
 		FB71BE9F201CB2FC0005492C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB71BE9E201CB2FC0005492C /* Assets.xcassets */; };
 		FB71BEA2201CB2FC0005492C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FB71BEA0201CB2FC0005492C /* LaunchScreen.storyboard */; };
+		FD3F8BA122886717005C1D6A /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD3F8BA022886716005C1D6A /* Toast.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -169,6 +170,7 @@
 		FB71BE9E201CB2FC0005492C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FB71BEA1201CB2FC0005492C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FB71BEA3201CB2FC0005492C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FD3F8BA022886716005C1D6A /* Toast.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Toast.swift; path = ../../../../Toast.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,6 +217,7 @@
 		C83C63782038D5150089B9D8 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				FD3F8BA022886716005C1D6A /* Toast.swift */,
 				C83C637B2038D5150089B9D8 /* StringIdentifiers.swift */,
 				46098D092050114C00752EB6 /* Network.swift */,
 				4612851D2051DB770061EC21 /* Mimes.swift */,
@@ -475,6 +478,7 @@
 				FB71BE91201CB2FC0005492C /* Frameworks */,
 				FB71BE92201CB2FC0005492C /* Resources */,
 				F61A594FE5268D2316515601 /* [CP] Embed Pods Frameworks */,
+				A9EA48321961CB6D8BABB2C7 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -541,6 +545,30 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		A9EA48321961CB6D8BABB2C7 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-resources.sh",
+				"${PODS_ROOT}/google-cast-sdk/GoogleCastSDK-ios-4.4.1_static/GoogleCast.framework/GoogleCastCoreResources.bundle",
+				"${PODS_ROOT}/google-cast-sdk/GoogleCastSDK-ios-4.4.1_static/GoogleCast.framework/GoogleCastUIResources.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleCastCoreResources.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleCastUIResources.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		D37A02672BBEFF330A5E8AAE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -565,7 +593,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-frameworks.sh",
+				"${SRCROOT}/Pods/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/Cache/Cache.framework",
 				"${BUILT_PRODUCTS_DIR}/EVReflection/EVReflection.framework",
@@ -573,6 +601,7 @@
 				"${BUILT_PRODUCTS_DIR}/Imaginary/Imaginary.framework",
 				"${BUILT_PRODUCTS_DIR}/Lightbox/Lightbox.framework",
 				"${BUILT_PRODUCTS_DIR}/MBProgressHUD/MBProgressHUD.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
 				"${BUILT_PRODUCTS_DIR}/SkyFloatingLabelTextField/SkyFloatingLabelTextField.framework",
@@ -586,13 +615,14 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Imaginary.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Lightbox.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MBProgressHUD.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Reachability.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SkyFloatingLabelTextField.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -627,6 +657,7 @@
 				C8DA5B1E20D5E03600F5A527 /* FilesViewController+UITableViewDelegates.swift in Sources */,
 				C88E5A7620B66B46006518B6 /* Date.swift in Sources */,
 				4612851E2051DB770061EC21 /* Mimes.swift in Sources */,
+				FD3F8BA122886717005C1D6A /* Toast.swift in Sources */,
 				ADAFF8D6224F6DB700287409 /* ThumbnailGenerator.swift in Sources */,
 				46059643204E8B41004FA066 /* BaseUITableViewController.swift in Sources */,
 				C88E5A7120B543B2006518B6 /* FileManager.swift in Sources */,
