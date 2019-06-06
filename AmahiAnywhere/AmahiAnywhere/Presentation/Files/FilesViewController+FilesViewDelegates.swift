@@ -66,20 +66,18 @@ extension FilesViewController: FilesView {
     
     func playAudio(_ items: [AVPlayerItem], startIndex: Int) {
         
-        let avPlayerVC = AVPlayerViewController()
         player = AVQueuePlayer(items: items)
         player.actionAtItemEnd = .advance
-        avPlayerVC.player = player
         
         for item in items {
             NotificationCenter.default.addObserver(self,
                                                    selector: #selector(FilesViewController.nextAudio(notification:)),
                                                    name: .AVPlayerItemDidPlayToEndTime, object: item)
         }
-        
-        present(avPlayerVC, animated: true) {
-            self.player.play()
-        }
+        let audioPlayerVc = self.viewController(viewControllerClass: AudioPlayerViewController.self,
+                                                from: StoryBoardIdentifiers.videoPlayer)
+        audioPlayerVc.player = self.player
+        self.present(audioPlayerVc)
     }
     
     func setNowPlayingInfo() {

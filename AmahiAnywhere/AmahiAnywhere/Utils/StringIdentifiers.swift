@@ -8,23 +8,24 @@
 import Foundation
 
 struct SegueIdentfiers {
-    static let connection =                         "connection"
-    static let settings =                            "goToSettings"
+    static let connection =                        "connection"
+    static let settings =                          "goToSettings"
 }
 
 struct StoryBoardIdentifiers {
     
     static let main =                              "Main"
     static let videoPlayer =                       "VideoPlayer"
+    static let audioPlayer =                       "AudioPlayer"
     static let loginViewController =               "LoginViewController"
     static let serverViewController =              "ServerTableViewController"
-    static let walktrhoughViewController =          "WalkthroughViewController"
-    static let tabBarController =                   "UITabBarController"
+    static let walktrhoughViewController =         "WalkthroughViewController"
+    static let tabBarController =                  "UITabBarController"
 }
 
 struct CellIdentifiers {
     // Cell Identifiers
-    static let connectionCell =                     "connectionCell"
-    static let settingsCell =                        "settingsCell"
+    static let connectionCell =                    "connectionCell"
+    static let settingsCell =                      "settingsCell"
     static let settingsCellWithDetails =           "settingsCellWithDetails"
 }

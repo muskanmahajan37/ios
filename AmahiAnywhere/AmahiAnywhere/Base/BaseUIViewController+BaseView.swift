@@ -208,6 +208,19 @@ extension UIViewController {
                            preferredActionPosition: Int = 0, sender: UIView? = nil ){
         let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.actionSheet);
         
+        ///
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = NSTextAlignment.center
+        
+        let messageText = NSMutableAttributedString(
+            string: "8.8 MB, modified on Fri Sep 26 2014",
+            attributes: [
+                NSAttributedString.Key.paragraphStyle: paragraphStyle,
+                NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13.0)
+            ]
+        )
+        
+        
         if(ltrActions.count == 0){
             let defaultAction = UIAlertAction(title: StringLiterals.ok, style: .default, handler: nil);
             alertController.addAction(defaultAction);
@@ -268,3 +281,4 @@ extension ProgressLoadingIndicators where Self: UIViewController {
 
 extension BaseUIViewController: ProgressLoadingIndicators {}
 extension BaseUITableViewController: ProgressLoadingIndicators {}
+

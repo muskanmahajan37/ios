@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -89,6 +89,7 @@
 		FB71BE9D201CB2FC0005492C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FB71BE9B201CB2FC0005492C /* Main.storyboard */; };
 		FB71BE9F201CB2FC0005492C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB71BE9E201CB2FC0005492C /* Assets.xcassets */; };
 		FB71BEA2201CB2FC0005492C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FB71BEA0201CB2FC0005492C /* LaunchScreen.storyboard */; };
+		FD40DD1322A8C889005D97EB /* AudioPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD40DD1222A8C889005D97EB /* AudioPlayerViewController.swift */; };
 		FDF80E92229FA41A0087F9B8 /* VideoPlayerSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDF80E91229FA41A0087F9B8 /* VideoPlayerSettings.swift */; };
 		FDF80E94229FB2060087F9B8 /* VideoMenuCellSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDF80E93229FB2060087F9B8 /* VideoMenuCellSettings.swift */; };
 /* End PBXBuildFile section */
@@ -181,6 +182,7 @@
 		FB71BE9E201CB2FC0005492C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FB71BEA1201CB2FC0005492C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FB71BEA3201CB2FC0005492C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FD40DD1222A8C889005D97EB /* AudioPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerViewController.swift; sourceTree = "<group>"; };
 		FDF80E91229FA41A0087F9B8 /* VideoPlayerSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerSettings.swift; sourceTree = "<group>"; };
 		FDF80E93229FB2060087F9B8 /* VideoMenuCellSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoMenuCellSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -430,6 +432,7 @@
 				C866E5542042D02A0083A606 /* VideoPlayerViewController.swift */,
 				FDF80E91229FA41A0087F9B8 /* VideoPlayerSettings.swift */,
 				FDF80E93229FB2060087F9B8 /* VideoMenuCellSettings.swift */,
+				FD40DD1222A8C889005D97EB /* AudioPlayerViewController.swift */,
 			);
 			path = MediaPlayers;
 			sourceTree = "<group>";
@@ -595,35 +598,16 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/Cache/Cache.framework",
-				"${BUILT_PRODUCTS_DIR}/EVReflection/EVReflection.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardManagerSwift/IQKeyboardManagerSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/Imaginary/Imaginary.framework",
-				"${BUILT_PRODUCTS_DIR}/Lightbox/Lightbox.framework",
-				"${BUILT_PRODUCTS_DIR}/MBProgressHUD/MBProgressHUD.framework",
-				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
-				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
-				"${BUILT_PRODUCTS_DIR}/SkyFloatingLabelTextField/SkyFloatingLabelTextField.framework",
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cache.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EVReflection.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardManagerSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Imaginary.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Lightbox.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MBProgressHUD.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Reachability.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SkyFloatingLabelTextField.framework",
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AmahiAnywhere/Pods-AmahiAnywhere-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -668,6 +652,7 @@
 				46098D02204FDBEE00752EB6 /* ApiEndPoints.swift in Sources */,
 				C84BBA5E20F37EF20030536F /* Notification.swift in Sources */,
 				C83C63922038D5B30089B9D8 /* AmahiApi.swift in Sources */,
+				FD40DD1322A8C889005D97EB /* AudioPlayerViewController.swift in Sources */,
 				46CB896B204FB0FC0031151F /* SharesPresenter.swift in Sources */,
 				C8DA5B2F20D7A1CA00F5A527 /* OfflineFileSort.swift in Sources */,
 				C80F3F4A20D47423000901B4 /* OfflineFileState.swift in Sources */,
