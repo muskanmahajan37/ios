@@ -64,11 +64,9 @@ extension FilesViewController: FilesView {
         self.present(videoPlayerVc)
     }
     
-    func playAudio(_ items: [AVPlayerItem], startIndex: Int) {
+    func playAudio(_ items: [AVPlayerItem], startIndex: Int, currentIndex: Int,_ URLs: [URL]) {
         
-        player = AVQueuePlayer(items: items)
-        player.actionAtItemEnd = .advance
-        
+        player = AVPlayer.init(playerItem: items[currentIndex])
         for item in items {
             NotificationCenter.default.addObserver(self,
                                                    selector: #selector(FilesViewController.nextAudio(notification:)),
@@ -77,6 +75,9 @@ extension FilesViewController: FilesView {
         let audioPlayerVc = self.viewController(viewControllerClass: AudioPlayerViewController.self,
                                                 from: StoryBoardIdentifiers.videoPlayer)
         audioPlayerVc.player = self.player
+        audioPlayerVc.playerItems = items
+        audioPlayerVc.itemURLs = URLs
+        player.play()
         self.present(audioPlayerVc)
     }
     
@@ -107,8 +108,8 @@ extension FilesViewController: FilesView {
         //        if let currentItem = player.currentItem {
         if let currentItem = notification.userInfo!["object"] as? AVPlayerItem {
             currentItem.seek(to: CMTime.zero)
-            self.player.advanceToNextItem()
-            self.player.insert(currentItem, after: nil)
+        //    self.player.advanceToNextItem()
+        //   self.player.insert(currentItem, after: nil)
         }
     }
     
@@ -140,8 +141,8 @@ extension FilesViewController: FilesView {
                     guard currentItem.currentTime() == currentItem.duration else { return }
                     AmahiLogger.log("ENTERED LAST BLOCK")
                     currentItem.seek(to: CMTime.zero)
-                    self.player.advanceToNextItem()
-                    self.player.insert(currentItem, after: nil)
+                  //  self.player.advanceToNextItem()
+                   // self.player.insert(currentItem, after: nil)
                     
                     self.player.play()
                 }

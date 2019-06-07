@@ -22,7 +22,7 @@ internal protocol FilesView : BaseView {
     
     func playMedia(at url: URL)
     
-    func playAudio(_ items: [AVPlayerItem], startIndex: Int)
+    func playAudio(_ items: [AVPlayerItem], startIndex: Int, currentIndex: Int,_ URLs: [URL])
     
     func webViewOpenContent(at url: URL, mimeType: MimeType)
     
@@ -126,20 +126,14 @@ internal class FilesPresenter: BasePresenter {
             var arrangedURLs = [URL]()
             
             for (index, url) in audioURLs.enumerated() {
-                if (index < fileIndex) {
-                    arrangedURLs.insert(url, at: arrangedURLs.endIndex)
-                } else {
-                    arrangedURLs.insert(url, at: index - fileIndex)
-                }
+                arrangedURLs.insert(url, at: arrangedURLs.endIndex)
             }
             
             var playerItems = [AVPlayerItem]()
             
-            for _ in 0..<6 {
-                arrangedURLs.forEach({playerItems.append(AVPlayerItem(url: $0))})
-            }
+            arrangedURLs.forEach({playerItems.append(AVPlayerItem(url: $0))})
             
-            self.view?.playAudio(playerItems, startIndex: fileIndex)
+            self.view?.playAudio(playerItems, startIndex: 0, currentIndex: fileIndex, arrangedURLs)
             break
             
         case MimeType.code, MimeType.presentation, MimeType.sharedFile, MimeType.document, MimeType.spreadsheet:
