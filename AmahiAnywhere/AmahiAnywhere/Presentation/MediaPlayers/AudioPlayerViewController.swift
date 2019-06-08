@@ -15,6 +15,7 @@ class AudioPlayerViewController: UIViewController {
     public var player: AVPlayer!
     public var playerItems: [AVPlayerItem]!
     public var itemURLs: [URL]!
+    var lastSongIndex: Int = 0
     
     let commandCenter = MPRemoteCommandCenter.shared()
     
@@ -28,11 +29,32 @@ class AudioPlayerViewController: UIViewController {
     @IBOutlet weak var timeElapsedLabel: UILabel!
     @IBOutlet weak var timeSlider: UISlider!
     @IBOutlet weak var audioControlsView: UIView!
+    @IBOutlet weak var repeatButton: UIButton!
+    @IBOutlet weak var shuffleButton: UIButton!
     
     @IBAction func doneButtonPressed(_ sender: Any) {
         player.pause()
         player = nil
         self.dismiss(animated: true, completion: nil)
+    }
+    var shuffledArray: [Int] = []
+    
+    @IBAction func repeatButtonPressed(_ sender: Any) {
+    }
+    
+    func shuffle(){
+        shuffledArray = stride(from: 0, through: playerItems.count - 1, by: 1).shuffled()
+    }
+    
+    @IBAction func shuffleButtonPressed(_ sender: Any) {
+        if shuffleButton.currentImage == UIImage(named: "shuffle") {
+            shuffleButton.setImage(UIImage(named:"shuffleOn"), for: .normal)
+            shuffle()
+        }
+        else {
+            shuffleButton.setImage(UIImage(named:"shuffle"), for: .normal)
+        }
+        
     }
     
     @IBAction func playPauseButtonPressed(_ sender: Any) {
@@ -52,6 +74,7 @@ class AudioPlayerViewController: UIViewController {
     
     func playSong(){
         player.play()
+        setTimeSlider()
         setLockScreenMetadata()
     }
     
@@ -61,7 +84,6 @@ class AudioPlayerViewController: UIViewController {
         var artist: String = ""
         
         let asset:AVAsset = AVAsset(url:itemURLs[playerItems.index(of: player.currentItem!) ?? 0])
-        
         for metaDataItems in asset.commonMetadata {
             //getting the title of the song
             //getting the thumbnail image associated with file
@@ -77,18 +99,38 @@ class AudioPlayerViewController: UIViewController {
     }
     
     func playNextSong(){
-        player.pause()
+        
+        if player?.timeControlStatus == .playing {
+            self.player.pause()
+        }
         player.rate = 0
         configurePlayButton()
         player.seek(to: CMTime.zero)
-        var index =  playerItems.index(of: player.currentItem!) ?? 0
-        if index == playerItems.count - 1 {
-            index = 0
+        
+        if shuffleButton.currentImage == UIImage(named: "shuffleOn") {
+            
+            if shuffledArray.count == 1 {
+                lastSongIndex = shuffledArray[0]
+            }
+            if shuffledArray.count == 0 {
+                shuffle()
+                if shuffledArray[0] == lastSongIndex {
+                    shuffledArray.removeFirst()
+                }
+            }
+            player.replaceCurrentItem(with: playerItems[shuffledArray[0]])
+            shuffledArray.removeFirst()
         }
-        else {
-            index = index + 1
+        else{
+            var index =  playerItems.index(of: player.currentItem!) ?? 0
+            if index == playerItems.count - 1 {
+                index = 0
+            }
+            else {
+                index = index + 1
+            }
+            player.replaceCurrentItem(with: playerItems[index])
         }
-        player.replaceCurrentItem(with: playerItems[index])
         playSong()
         setArtWork()
         setDurationLabel()
@@ -117,7 +159,6 @@ class AudioPlayerViewController: UIViewController {
     }
     
     func setArtWork(){
-        setButtonsVisibility()
         DispatchQueue.global(qos: .background).async {
             let image = AudioThumbnailGenerator().getThumbnail(self.itemURLs[self.playerItems.index(of: self.player.currentItem!) ?? 0])
             DispatchQueue.main.async {
@@ -160,22 +201,6 @@ class AudioPlayerViewController: UIViewController {
         }
     }
     
-    func setButtonsVisibility(){
-        let index =  playerItems.index(of: player.currentItem!) ?? 0
-        if index == 0 {
-            prevButton.isEnabled = false
-        }
-        else {
-            prevButton.isEnabled = true
-        }
-        if index == playerItems.count - 1 {
-            nextButton.isEnabled = false
-        }
-        else {
-            nextButton.isEnabled = true
-        }
-    }
-    
     var nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
     var remoCommandCenter = MPRemoteCommandCenter.shared()
     
@@ -193,11 +218,12 @@ class AudioPlayerViewController: UIViewController {
                                             MPNowPlayingInfoPropertyPlaybackRate: 1.0]
         
         
+        
         remoCommandCenter.seekForwardCommand.isEnabled = false
         remoCommandCenter.seekBackwardCommand.isEnabled = false
-        remoCommandCenter.previousTrackCommand.isEnabled = false
-        remoCommandCenter.nextTrackCommand.isEnabled = false
-        remoCommandCenter.togglePlayPauseCommand.isEnabled = false
+        remoCommandCenter.previousTrackCommand.isEnabled = true
+        remoCommandCenter.nextTrackCommand.isEnabled = true
+        remoCommandCenter.togglePlayPauseCommand.isEnabled = true
 
         UIApplication.shared.beginReceivingRemoteControlEvents()
 
@@ -206,7 +232,7 @@ class AudioPlayerViewController: UIViewController {
     
     override func viewDidLoad() {
         
-        setButtonsVisibility()
+        //setButtonsVisibility()
         timeSlider.isUserInteractionEnabled = true
         setDurationLabel()
         setArtWork()
@@ -215,6 +241,9 @@ class AudioPlayerViewController: UIViewController {
         listenForNotifications()
         
         MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget(self, action: #selector(playandPause(_:)))
+        MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(self, action: #selector(nextButtonPressed(_:)))
+        MPRemoteCommandCenter.shared().previousTrackCommand.addTarget(self, action: #selector(prevButtonPressed(_:)))
+        MPRemoteCommandCenter.shared().changePlaybackPositionCommand.addTarget(self, action: #selector(timeSliderValueChanged(_:)))
     }
     
     @objc private func playandPause(_ sender: Any) {
@@ -238,29 +267,32 @@ class AudioPlayerViewController: UIViewController {
             else { fatalError("Strange... could not get routeChange") }
         if reason == .oldDeviceUnavailable {
             DispatchQueue.main.async(execute: {
-                self.player.timeControlStatus == .playing ? self.player.pause() : self.player.play()
+               // self.player.timeControlStatus == .playing ? self.player.pause() : self.player.play()
                 // Handle this event as if it is user-touch triggered
             })
         }
+    }
+    
+    func setTimeSlider() {
+        let duration : CMTime = player.currentItem?.asset.duration ?? CMTime.zero
+        let seconds : Float64 = CMTimeGetSeconds(duration)
+        timeSlider!.maximumValue = Float(seconds)
+        
+        timeSlider!.isContinuous = false
+        
+        timeSlider?.addTarget(self, action: #selector(timeSliderValueChanged(_:)), for: .valueChanged)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         
         timeSlider!.minimumValue = 0
-        
-        let duration : CMTime = player.currentItem?.asset.duration ?? CMTime.zero
-        let seconds : Float64 = CMTimeGetSeconds(duration)
-        
-        timeSlider!.maximumValue = Float(seconds)
-        timeSlider!.isContinuous = false
-        
-        timeSlider?.addTarget(self, action: #selector(timeSliderValueChanged(_:)), for: .valueChanged)
+        setTimeSlider()
         
         player!.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1, preferredTimescale: 1), queue: DispatchQueue.main) { (CMTime) -> Void in
             if self.player?.currentItem?.status == .readyToPlay {
                 let time : Float64 = CMTimeGetSeconds(self.player!.currentTime());
-                self.timeSlider.value = Float ( time );
                 self.setLabelText(self.timeElapsedLabel, Int(time))
+                self.timeSlider.value = Float (time )
                 if self.timeElapsedLabel.text != "--:--" && self.timeElapsedLabel.text == self.durationLabel.text {
                     if self.nextButton.isEnabled == true {
                         self.playNextSong()
@@ -286,17 +318,6 @@ class AudioPlayerViewController: UIViewController {
         if canBecomeFirstResponder {
             becomeFirstResponder()
         }
-       /* commandCenter.previousTrackCommand.isEnabled = true
-        commandCenter.previousTrackCommand.addTarget(self, action: Selector(("playPrevSong")))
-        
-        commandCenter.nextTrackCommand.isEnabled = true
-        commandCenter.nextTrackCommand.addTarget(self, action: Selector(("playNextSong")))
-        
-        commandCenter.playCommand.isEnabled = true
-        commandCenter.playCommand.addTarget(self, action: "playSong")
-        
-        commandCenter.pauseCommand.isEnabled = true
-        commandCenter.pauseCommand.addTarget(self, action: "pauseAudio")*/
     }
     
     override func remoteControlReceived(with event: UIEvent?) {
@@ -311,10 +332,10 @@ class AudioPlayerViewController: UIViewController {
         }
     }
     
-    @objc func timeSliderValueChanged(_ playbackSlider:UISlider)
+    @objc func timeSliderValueChanged(_ timeSlider:UISlider)
     {
         
-        let seconds : Int64 = Int64(playbackSlider.value)
+        let seconds : Int64 = Int64(timeSlider.value)
         let targetTime:CMTime = CMTimeMake(value: seconds, timescale: 1)
         
         player!.seek(to: targetTime)

@@ -278,10 +278,17 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="sJa-0i-lQR">
-                                                <rect key="frame" x="93.666666666666686" y="36" width="156" height="36"/>
+                                                <rect key="frame" x="43.666666666666657" y="36" width="255.99999999999997" height="25"/>
                                                 <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Un5-SP-XTH">
+                                                        <rect key="frame" x="0.0" y="0.0" width="32" height="25"/>
+                                                        <state key="normal" image="repeat"/>
+                                                        <connections>
+                                                            <action selector="repeatButtonPressed:" destination="cll-dP-OW0" eventType="touchUpInside" id="II9-2f-sqM"/>
+                                                        </connections>
+                                                    </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZWC-I1-uIu" userLabel="Reverse">
-                                                        <rect key="frame" x="0.0" y="0.0" width="36" height="36"/>
+                                                        <rect key="frame" x="56" y="0.0" width="32" height="25"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" relation="lessThanOrEqual" constant="84" id="WeW-4Z-deK"/>
                                                         </constraints>
@@ -292,7 +299,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4bL-Ux-erU" userLabel="Play">
-                                                        <rect key="frame" x="59.999999999999986" y="0.0" width="36" height="36"/>
+                                                        <rect key="frame" x="112" y="0.0" width="32" height="25"/>
                                                         <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <state key="normal" image="playIcon"/>
                                                         <connections>
@@ -300,23 +307,38 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oDG-Xf-mOs" userLabel="Forward">
-                                                        <rect key="frame" x="120" y="0.0" width="36" height="36"/>
+                                                        <rect key="frame" x="168" y="0.0" width="32" height="25"/>
                                                         <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <state key="normal" image="forwardIcon"/>
                                                         <connections>
                                                             <action selector="nextButtonPressed:" destination="cll-dP-OW0" eventType="touchUpInside" id="nMl-kQ-JnE"/>
                                                         </connections>
                                                     </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Irz-T2-wbr">
+                                                        <rect key="frame" x="224.00000000000003" y="0.0" width="31.999999999999972" height="25"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="25" id="GLb-XK-6j9"/>
+                                                            <constraint firstAttribute="width" constant="32" id="aBg-vK-kYW"/>
+                                                        </constraints>
+                                                        <state key="normal" image="shuffle"/>
+                                                        <connections>
+                                                            <action selector="shuffleButtonPressed:" destination="cll-dP-OW0" eventType="touchUpInside" id="F0R-3E-gz5"/>
+                                                        </connections>
+                                                    </button>
                                                 </subviews>
                                                 <constraints>
+                                                    <constraint firstItem="Un5-SP-XTH" firstAttribute="width" secondItem="ZWC-I1-uIu" secondAttribute="width" id="15x-xc-sKm"/>
                                                     <constraint firstItem="oDG-Xf-mOs" firstAttribute="width" secondItem="ZWC-I1-uIu" secondAttribute="width" id="36T-ts-aaV"/>
                                                     <constraint firstItem="ZWC-I1-uIu" firstAttribute="baseline" secondItem="oDG-Xf-mOs" secondAttribute="baseline" id="70C-La-wSH"/>
+                                                    <constraint firstItem="Irz-T2-wbr" firstAttribute="width" secondItem="oDG-Xf-mOs" secondAttribute="width" id="AKJ-Nq-QCx"/>
                                                     <constraint firstItem="oDG-Xf-mOs" firstAttribute="firstBaseline" secondItem="ZWC-I1-uIu" secondAttribute="firstBaseline" id="BbW-e6-uvJ"/>
                                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="326" id="Dtq-vu-hsE"/>
                                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="326" id="aPa-vO-PGm">
                                                         <variation key="widthClass=compact" constant="326"/>
                                                     </constraint>
                                                     <constraint firstItem="4bL-Ux-erU" firstAttribute="width" secondItem="ZWC-I1-uIu" secondAttribute="width" id="j5n-nW-KSd"/>
+                                                    <constraint firstAttribute="trailing" secondItem="Irz-T2-wbr" secondAttribute="trailing" id="p4o-Ew-JAn"/>
+                                                    <constraint firstItem="Irz-T2-wbr" firstAttribute="top" secondItem="sJa-0i-lQR" secondAttribute="top" id="zy5-pK-Tu0"/>
                                                 </constraints>
                                                 <variation key="default">
                                                     <mask key="constraints">
@@ -389,7 +411,9 @@
                         <outlet property="nextButton" destination="oDG-Xf-mOs" id="6kN-pQ-m5P"/>
                         <outlet property="playPauseButton" destination="4bL-Ux-erU" id="nGm-K4-Td3"/>
                         <outlet property="prevButton" destination="ZWC-I1-uIu" id="wRS-iS-p3v"/>
+                        <outlet property="repeatButton" destination="Un5-SP-XTH" id="w7X-Hc-VI8"/>
                         <outlet property="rootView" destination="jee-xs-N8G" id="Xuz-pA-6E1"/>
+                        <outlet property="shuffleButton" destination="Irz-T2-wbr" id="SQa-5f-96m"/>
                         <outlet property="timeElapsedLabel" destination="Ymr-h4-1XM" id="4mW-qs-hYe"/>
                         <outlet property="timeSlider" destination="Xhl-yR-3Gl" id="kQd-2H-bP4"/>
                     </connections>
@@ -409,5 +433,7 @@
         <image name="moreIcon" width="72" height="72"/>
         <image name="musicPlayerArtWork" width="300" height="300"/>
         <image name="playIcon" width="36" height="36"/>
+        <image name="repeat" width="512" height="512"/>
+        <image name="shuffle" width="512" height="512"/>
     </resources>
 </document>
