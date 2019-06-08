@@ -264,9 +264,6 @@
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="24" id="uXT-MU-ODO"/>
                                                 </constraints>
-                                                <connections>
-                                                    <action selector="timeSliderDidChange:" destination="cll-dP-OW0" eventType="valueChanged" id="7Hq-tl-wIY"/>
-                                                </connections>
                                             </slider>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="260" verticalHuggingPriority="251" text="--:--" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ymr-h4-1XM" userLabel="Play Time Elapsed">
                                                 <rect key="frame" x="12.000000000000002" y="36" width="24.666666666666671" height="13.333333333333336"/>
