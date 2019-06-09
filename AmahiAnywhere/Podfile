@@ -10,8 +10,8 @@ use_frameworks!
     pod 'EVReflection/Alamofire'
     pod 'IQKeyboardManagerSwift'
     pod 'SkyFloatingLabelTextField'
-    pod 'MobileVLCKit', '3.3.2'
+    pod 'MobileVLCKit'
     pod 'Lightbox'
     pod 'ReachabilitySwift'
-    pod 'SDWebImage', '4.4.6'
+    pod 'SDWebImage'
 end

@@ -12,15 +12,6 @@ import MediaPlayer
 
 class AudioPlayerViewController: UIViewController {
     
-    public var player: AVPlayer!
-    public var playerItems: [AVPlayerItem]!
-    public var itemURLs: [URL]!
-    var lastSongIndex: Int = 0
-    var songDuration: Int = 0
-    var elapsedTime: Int = 0
-    
-    let commandCenter = MPRemoteCommandCenter.shared()
-    
     @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var nextButton: UIButton!
@@ -36,13 +27,25 @@ class AudioPlayerViewController: UIViewController {
     @IBOutlet weak var artistName: UILabel!
     @IBOutlet weak var songTitle: UILabel!
     
+    public var player: AVPlayer!
+    public var playerItems: [AVPlayerItem]!
+    public var itemURLs: [URL]!
+    
+    let commandCenter = MPRemoteCommandCenter.shared()
+    
+    var nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
+    var remoCommandCenter = MPRemoteCommandCenter.shared()
+    var shuffledArray: [Int] = []
+    var lastSongIndex: Int = 0
+    var songDuration: Int = 0
+    var elapsedTime: Int = 0
+    
     @IBAction func doneButtonPressed(_ sender: Any) {
         player.pause()
         player = nil
         AppUtility.lockOrientation(.all)
         self.dismiss(animated: true, completion: nil)
     }
-    var shuffledArray: [Int] = []
     
     @IBAction func repeatButtonPressed(_ sender: Any) {
         if repeatButton.currentImage == UIImage(named:"repeat") {
@@ -53,10 +56,6 @@ class AudioPlayerViewController: UIViewController {
             repeatButton.setImage(UIImage(named:"repeat"), for: .normal)
             shuffleButton.isEnabled = true
         }
-    }
-    
-    func shuffle(){
-        shuffledArray = stride(from: 0, through: playerItems.count - 1, by: 1).shuffled()
     }
     
     @IBAction func shuffleButtonPressed(_ sender: Any) {
@@ -87,34 +86,11 @@ class AudioPlayerViewController: UIViewController {
        playNextSong()
     }
     
-    func playSong(){
-        player.play()
-        setTimeSlider()
-        setLockScreenMetadata()
+    @IBAction func prevButtonPressed(_ sender: Any) {
+        playPrevSong()
     }
     
-    func setLockScreenMetadata() {
-        
-        var track: String = ""
-        var artist: String = ""
-        
-        let asset:AVAsset = AVAsset(url:itemURLs[playerItems.index(of: player.currentItem!) ?? 0])
-        for metaDataItems in asset.commonMetadata {
-            //getting the title of the song
-            //getting the thumbnail image associated with file
-            if metaDataItems.commonKey == AVMetadataKey.commonKeyArtist {
-                track = metaDataItems.value as! String
-            }
-            if metaDataItems.commonKey == AVMetadataKey.commonKeyTitle {
-                artist = metaDataItems.value as! String
-            }
-        }
-        artistName.text = artist
-        songTitle.text = track
-        updateNowPlayingInfo(trackName: track, artistName: artist,img: musicArtImageView.image!)
-    }
-    
-    func playNextSong(){
+    func playNextSong() {
         
         if repeatButton.currentImage != UIImage(named:"repeatOn") {
             if player?.timeControlStatus == .playing {
@@ -158,7 +134,7 @@ class AudioPlayerViewController: UIViewController {
         setDurationLabel()
     }
     
-    func playPrevSong(){
+    func playPrevSong() {
         player.pause()
         player.rate = 0
         configurePlayButton()
@@ -176,8 +152,34 @@ class AudioPlayerViewController: UIViewController {
         setDurationLabel()
     }
     
-    @IBAction func prevButtonPressed(_ sender: Any) {
-        playPrevSong()
+    func playSong() {
+        player.play()
+        setTimeSlider()
+        setLockScreenMetadata()
+    }
+    
+    func shuffle() {
+        shuffledArray = stride(from: 0, through: playerItems.count - 1, by: 1).shuffled()
+    }
+    
+    func setLockScreenMetadata() {
+        var track: String = ""
+        var artist: String = ""
+        
+        let asset:AVAsset = AVAsset(url:itemURLs[playerItems.index(of: player.currentItem!) ?? 0])
+        for metaDataItems in asset.commonMetadata {
+            //getting the title of the song
+            //getting the thumbnail image associated with file
+            if metaDataItems.commonKey == AVMetadataKey.commonKeyArtist {
+                track = metaDataItems.value as! String
+            }
+            if metaDataItems.commonKey == AVMetadataKey.commonKeyTitle {
+                artist = metaDataItems.value as! String
+            }
+        }
+        artistName.text = artist
+        songTitle.text = track
+        updateNowPlayingInfo(trackName: track, artistName: artist,img: musicArtImageView.image!)
     }
     
     func setArtWork(){
@@ -194,7 +196,7 @@ class AudioPlayerViewController: UIViewController {
         return (seconds / 60, (seconds % 60) % 60)
     }
     
-    func setLabelText(_ sender: UILabel!,_ duration: Int){
+    func setLabelText(_ sender: UILabel!,_ duration: Int) {
         let (m,s) = self.secondsToMinutesSeconds(seconds: Int(duration))
         if m/10 < 1 && s/10 < 1 {
             sender.text = "0\(m):0\(s)"
@@ -210,7 +212,7 @@ class AudioPlayerViewController: UIViewController {
         }
     }
     
-    func setDurationLabel(){
+    func setDurationLabel() {
         self.timeSlider.value = 0.0
         self.durationLabel.text = "--:--"
         self.timeElapsedLabel.text = "--:--"
@@ -224,9 +226,6 @@ class AudioPlayerViewController: UIViewController {
         }
     }
     
-    var nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
-    var remoCommandCenter = MPRemoteCommandCenter.shared()
-    
     func isPaused() -> Bool {
         if ((self.player.rate != 0) && (self.player.error == nil)) {
             return false
@@ -237,15 +236,12 @@ class AudioPlayerViewController: UIViewController {
     }
     
     func updateNowPlayingInfo(trackName:String,artistName:String,img:UIImage) {
-        
         var art = MPMediaItemArtwork(image: img)
         if #available(iOS 10.0, *) {
             art = MPMediaItemArtwork(boundsSize: CGSize(width: 200, height: 200)) { (size) -> UIImage in
                 return img
             }
         }
-        
-        print(self.elapsedTime)
         nowPlayingInfoCenter.nowPlayingInfo = [MPMediaItemPropertyTitle: trackName,
                                                MPMediaItemPropertyArtist: artistName,
                                                MPMediaItemPropertyArtwork : art, MPMediaItemPropertyPlaybackDuration: songDuration, MPNowPlayingInfoPropertyPlaybackRate: player.rate = isPaused() ? 0:1 ,MPNowPlayingInfoPropertyElapsedPlaybackTime : elapsedTime] //MPChangePlaybackPositionCommandEvent: ]
@@ -256,14 +252,11 @@ class AudioPlayerViewController: UIViewController {
         remoCommandCenter.togglePlayPauseCommand.isEnabled = true
         remoCommandCenter.changePlaybackPositionCommand.isEnabled = true
         remoCommandCenter.changePlaybackPositionCommand.addTarget(self, action:#selector(changePlaybackPositionCommand(_:)))
-        //remoCommandCenter.
-
         UIApplication.shared.beginReceivingRemoteControlEvents()
-
         becomeFirstResponder()
     }
     
-    @objc func changePlaybackPositionCommand(_ event:MPChangePlaybackPositionCommandEvent) -> MPRemoteCommandHandlerStatus{
+    @objc func changePlaybackPositionCommand(_ event:MPChangePlaybackPositionCommandEvent) -> MPRemoteCommandHandlerStatus {
         
         let time = event.positionTime
         let targetTime:CMTime = CMTimeMake(value: Int64(time), timescale: 1)
@@ -277,21 +270,6 @@ class AudioPlayerViewController: UIViewController {
         return MPRemoteCommandHandlerStatus.success;
     }
     
-    override func viewDidLoad() {
-        
-        AppUtility.lockOrientation(.portrait)
-        timeSlider.isUserInteractionEnabled = true
-        setDurationLabel()
-        setArtWork()
-        timeSlider.setThumbImage(UIImage(named: "sliderKnobIcon"), for: .normal)
-        self.setLockScreenMetadata()
-        setupNotifications()
-        
-        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget(self, action: #selector(playandPause(_:)))
-        MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(self, action: #selector(nextButtonPressed(_:)))
-        MPRemoteCommandCenter.shared().previousTrackCommand.addTarget(self, action: #selector(prevButtonPressed(_:)))
-    }
-    
     @objc private func playandPause(_ sender: Any) {
         AmahiLogger.log("playandPause was called ")
         
@@ -300,9 +278,6 @@ class AudioPlayerViewController: UIViewController {
         }
     }
     
-    
-    //////////
-    
     func setupNotifications() {
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self,
@@ -310,14 +285,14 @@ class AudioPlayerViewController: UIViewController {
                                        name: AVAudioSession.interruptionNotification,
                                        object: nil)
     }
-    // Dealing with calls interruption
+    
+    // Dealing with call interruption
     @objc func handleInterruption(notification: Notification) {
         guard let userInfo = notification.userInfo,
             let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
             let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
                 return
         }
-        
         if type == .began {
             // Call received, media playback stopped
         }
@@ -333,31 +308,22 @@ class AudioPlayerViewController: UIViewController {
         }
     }
     
-    ////////////
-    
     func setTimeSlider() {
         let duration : CMTime = player.currentItem?.asset.duration ?? CMTime.zero
         let seconds : Float64 = CMTimeGetSeconds(duration)
         timeSlider!.maximumValue = Float(seconds)
-        
         timeSlider!.isContinuous = false
-        
         timeSlider?.addTarget(self, action: #selector(timeSliderValueChanged(_:)), for: .valueChanged)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         timeSlider!.minimumValue = 0
         setTimeSlider()
-        
         player!.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1, preferredTimescale: 1), queue: DispatchQueue.main) { (CMTime) -> Void in
             if self.player?.currentItem?.status == .readyToPlay {
                 let time : Float64 = CMTimeGetSeconds(self.player!.currentTime());
                 self.setLabelText(self.timeElapsedLabel, Int(time))
-                //self.timeElapsed = Int(time)
                 self.timeSlider.value = Float (time )
-              //  self.setLockScreenMetadata()
-                //self.elapsedTime = Int (time)
-             //   self.nowPlayingInfoCenter.nowPlayingInfo = [MPNowPlayingInfoPropertyElapsedPlaybackTime : self.elapsedTime]
                 if self.timeElapsedLabel.text != "--:--" && self.timeElapsedLabel.text == self.durationLabel.text {
                     if self.nextButton.isEnabled == true {
                         self.playNextSong()
@@ -368,8 +334,7 @@ class AudioPlayerViewController: UIViewController {
         }
     }
     
-    func configurePlayButton(){
-        
+    func configurePlayButton() {
         if ((self.player.rate != 0) && (self.player.error == nil)) {
             self.playPauseButton.setImage(UIImage(named: "pauseIcon"), for: .normal)
         }
@@ -378,24 +343,34 @@ class AudioPlayerViewController: UIViewController {
         }
     }
     
+    @objc func timeSliderValueChanged(_ sender: Any)
+    {
+        let seconds : Int64 = Int64(timeSlider.value)
+        let targetTime:CMTime = CMTimeMake(value: seconds, timescale: 1)
+        player!.seek(to: targetTime)
+        if player!.rate == 0
+        {
+            playSong()
+        }
+    }
+    
+    override func viewDidLoad() {
+        AppUtility.lockOrientation(.portrait)
+        timeSlider.isUserInteractionEnabled = true
+        setDurationLabel()
+        setArtWork()
+        timeSlider.setThumbImage(UIImage(named: "sliderKnobIcon"), for: .normal)
+        self.setLockScreenMetadata()
+        setupNotifications()
+        MPRemoteCommandCenter.shared().togglePlayPauseCommand.addTarget(self, action: #selector(playandPause(_:)))
+        MPRemoteCommandCenter.shared().nextTrackCommand.addTarget(self, action: #selector(nextButtonPressed(_:)))
+        MPRemoteCommandCenter.shared().previousTrackCommand.addTarget(self, action: #selector(prevButtonPressed(_:)))
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         UIApplication.shared.beginReceivingRemoteControlEvents()
         if canBecomeFirstResponder {
             becomeFirstResponder()
-        }
-    }
-    
-    @objc func timeSliderValueChanged(_ sender: Any)
-    {
-        
-        let seconds : Int64 = Int64(timeSlider.value)
-        let targetTime:CMTime = CMTimeMake(value: seconds, timescale: 1)
-        
-        player!.seek(to: targetTime)
-        
-        if player!.rate == 0
-        {
-            playSong()
         }
     }
     
