@@ -278,7 +278,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="sJa-0i-lQR">
-                                                <rect key="frame" x="43.666666666666529" y="42" width="255.99999999999997" height="25"/>
+                                                <rect key="frame" x="43.666666666666657" y="42" width="255.99999999999997" height="25"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Un5-SP-XTH">
                                                         <rect key="frame" x="0.0" y="0.0" width="32" height="25"/>
@@ -376,12 +376,36 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </view>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Song Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nwy-gf-Pl3">
+                                        <rect key="frame" x="8" y="99" width="351" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="fMw-WT-b9w"/>
+                                            <constraint firstAttribute="width" constant="351" id="q5U-r1-vd3"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Artist Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mAd-I9-vTK">
+                                        <rect key="frame" x="8" y="133" width="351" height="22"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="351" id="BAh-Yi-CAT"/>
+                                            <constraint firstAttribute="height" constant="22" id="h55-S2-qvQ"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                                 <color key="backgroundColor" white="0.070000000000000007" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="a2f-hy-vRX" firstAttribute="centerX" secondItem="JTu-wN-U8p" secondAttribute="centerX" id="A0j-sJ-itF"/>
                                     <constraint firstItem="JTu-wN-U8p" firstAttribute="centerX" secondItem="jee-xs-N8G" secondAttribute="centerX" id="A6p-JF-se2"/>
+                                    <constraint firstItem="Nwy-gf-Pl3" firstAttribute="leading" secondItem="jee-xs-N8G" secondAttribute="leading" constant="8" id="FUQ-hF-Gvf"/>
+                                    <constraint firstItem="mAd-I9-vTK" firstAttribute="leading" secondItem="jee-xs-N8G" secondAttribute="leading" constant="8" id="GFa-fx-tCE"/>
                                     <constraint firstItem="3JH-p3-RfR" firstAttribute="top" secondItem="jee-xs-N8G" secondAttribute="top" constant="8" id="IP9-qS-dV4"/>
+                                    <constraint firstItem="Nwy-gf-Pl3" firstAttribute="top" secondItem="3JH-p3-RfR" secondAttribute="bottom" constant="41" id="IQV-NM-4b5"/>
+                                    <constraint firstItem="mAd-I9-vTK" firstAttribute="top" secondItem="Nwy-gf-Pl3" secondAttribute="bottom" constant="4" id="Mu3-sl-7Bx"/>
                                     <constraint firstItem="3JH-p3-RfR" firstAttribute="leading" secondItem="jee-xs-N8G" secondAttribute="leading" constant="8" id="QRx-6j-M4g"/>
                                     <constraint firstAttribute="bottom" secondItem="JTu-wN-U8p" secondAttribute="bottom" constant="16" id="ZbB-TL-yBo"/>
                                     <constraint firstItem="a2f-hy-vRX" firstAttribute="leading" secondItem="jee-xs-N8G" secondAttribute="leading" id="Zxd-3X-HcK"/>
@@ -404,6 +428,7 @@
                         <viewLayoutGuide key="safeArea" id="N40-ac-vAT"/>
                     </view>
                     <connections>
+                        <outlet property="artistName" destination="mAd-I9-vTK" id="B9b-2t-Cew"/>
                         <outlet property="audioControlsView" destination="JTu-wN-U8p" id="ZEO-CF-Iej"/>
                         <outlet property="doneButton" destination="3JH-p3-RfR" id="JKl-k2-3aA"/>
                         <outlet property="durationLabel" destination="3aL-3c-jw0" id="wIp-gN-NfR"/>
@@ -414,13 +439,14 @@
                         <outlet property="repeatButton" destination="Un5-SP-XTH" id="w7X-Hc-VI8"/>
                         <outlet property="rootView" destination="jee-xs-N8G" id="Xuz-pA-6E1"/>
                         <outlet property="shuffleButton" destination="Irz-T2-wbr" id="SQa-5f-96m"/>
+                        <outlet property="songTitle" destination="Nwy-gf-Pl3" id="4iR-KQ-QRV"/>
                         <outlet property="timeElapsedLabel" destination="Ymr-h4-1XM" id="4mW-qs-hYe"/>
                         <outlet property="timeSlider" destination="Xhl-yR-3Gl" id="kQd-2H-bP4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xd9-W9-Hkb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4071" y="937"/>
+            <point key="canvasLocation" x="4069.5999999999999" y="936.94581280788179"/>
         </scene>
     </scenes>
     <resources>
