@@ -28,4 +28,5 @@ struct CellIdentifiers {
     static let connectionCell =                    "connectionCell"
     static let settingsCell =                      "settingsCell"
     static let settingsCellWithDetails =           "settingsCellWithDetails"
+    static let serverCell =                        "serverCollectionViewCell"
 }
