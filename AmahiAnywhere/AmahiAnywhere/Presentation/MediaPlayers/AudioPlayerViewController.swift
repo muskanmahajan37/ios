@@ -50,23 +50,19 @@ class AudioPlayerViewController: UIViewController {
     @IBAction func repeatButtonPressed(_ sender: Any) {
         if repeatButton.currentImage == UIImage(named:"repeat") {
             repeatButton.setImage(UIImage(named:"repeatOn"), for: .normal)
-            shuffleButton.isEnabled = false
         }
         else {
             repeatButton.setImage(UIImage(named:"repeat"), for: .normal)
-            shuffleButton.isEnabled = true
         }
     }
     
     @IBAction func shuffleButtonPressed(_ sender: Any) {
         if shuffleButton.currentImage == UIImage(named: "shuffle") {
             shuffleButton.setImage(UIImage(named:"shuffleOn"), for: .normal)
-            repeatButton.isEnabled = false
             shuffle()
         }
         else {
             shuffleButton.setImage(UIImage(named:"shuffle"), for: .normal)
-            repeatButton.isEnabled = true
         }
         
     }
