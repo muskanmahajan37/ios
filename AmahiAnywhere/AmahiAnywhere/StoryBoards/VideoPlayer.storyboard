@@ -278,17 +278,17 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="sJa-0i-lQR">
-                                                <rect key="frame" x="43.666666666666657" y="42" width="255.99999999999997" height="25"/>
+                                                <rect key="frame" x="56.666666666666686" y="42" width="230" height="25"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Un5-SP-XTH">
-                                                        <rect key="frame" x="0.0" y="0.0" width="32" height="25"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="26.666666666666668" height="25"/>
                                                         <state key="normal" image="repeat"/>
                                                         <connections>
                                                             <action selector="repeatButtonPressed:" destination="cll-dP-OW0" eventType="touchUpInside" id="II9-2f-sqM"/>
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZWC-I1-uIu" userLabel="Reverse">
-                                                        <rect key="frame" x="56" y="0.0" width="32" height="25"/>
+                                                        <rect key="frame" x="50.666666666666657" y="0.0" width="26.666666666666671" height="25"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" relation="lessThanOrEqual" constant="84" id="WeW-4Z-deK"/>
                                                         </constraints>
@@ -299,7 +299,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4bL-Ux-erU" userLabel="Play">
-                                                        <rect key="frame" x="112" y="0.0" width="32" height="25"/>
+                                                        <rect key="frame" x="101.33333333333333" y="0.0" width="26.999999999999986" height="25"/>
                                                         <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <state key="normal" image="playIcon"/>
                                                         <connections>
@@ -307,7 +307,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oDG-Xf-mOs" userLabel="Forward">
-                                                        <rect key="frame" x="168" y="0.0" width="32" height="25"/>
+                                                        <rect key="frame" x="152.33333333333331" y="0.0" width="26.666666666666657" height="25"/>
                                                         <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <state key="normal" image="forwardIcon"/>
                                                         <connections>
@@ -315,7 +315,7 @@
                                                         </connections>
                                                     </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Irz-T2-wbr">
-                                                        <rect key="frame" x="224.00000000000003" y="0.0" width="31.999999999999972" height="25"/>
+                                                        <rect key="frame" x="203" y="0.0" width="27" height="25"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="25" id="GLb-XK-6j9"/>
                                                             <constraint firstAttribute="width" constant="32" id="aBg-vK-kYW"/>
@@ -334,7 +334,7 @@
                                                     <constraint firstItem="oDG-Xf-mOs" firstAttribute="firstBaseline" secondItem="ZWC-I1-uIu" secondAttribute="firstBaseline" id="BbW-e6-uvJ"/>
                                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="326" id="Dtq-vu-hsE"/>
                                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="326" id="aPa-vO-PGm">
-                                                        <variation key="widthClass=compact" constant="326"/>
+                                                        <variation key="widthClass=compact" constant="230"/>
                                                     </constraint>
                                                     <constraint firstItem="4bL-Ux-erU" firstAttribute="width" secondItem="ZWC-I1-uIu" secondAttribute="width" id="j5n-nW-KSd"/>
                                                     <constraint firstAttribute="trailing" secondItem="Irz-T2-wbr" secondAttribute="trailing" id="p4o-Ew-JAn"/>
