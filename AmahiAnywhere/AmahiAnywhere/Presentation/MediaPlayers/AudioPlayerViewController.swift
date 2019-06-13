@@ -49,10 +49,15 @@ class AudioPlayerViewController: UIViewController {
     
     @IBAction func repeatButtonPressed(_ sender: Any) {
         if repeatButton.currentImage == UIImage(named:"repeat") {
-            repeatButton.setImage(UIImage(named:"repeatOn"), for: .normal)
+            repeatButton.setImage(UIImage(named:"repeatAll"), for: .normal)
         }
         else {
-            repeatButton.setImage(UIImage(named:"repeat"), for: .normal)
+            if repeatButton.currentImage == UIImage(named: "repeatAll") {
+                 repeatButton.setImage(UIImage(named:"repeatCurrent"), for: .normal)
+            }
+            else {
+                repeatButton.setImage(UIImage(named:"repeat"), for: .normal)
+            }
         }
     }
     
@@ -79,6 +84,10 @@ class AudioPlayerViewController: UIViewController {
     }
     
     @IBAction func nextButtonPressed(_ sender: Any) {
+       var index =  playerItems.index(of: player.currentItem!) ?? 0
+        if index == playerItems.count - 1 {
+            repeatButton.setImage(UIImage(named:"repeatAll"), for: .normal)
+        }
        playNextSong()
     }
     
@@ -88,7 +97,41 @@ class AudioPlayerViewController: UIViewController {
     
     func playNextSong() {
         
-        if repeatButton.currentImage != UIImage(named:"repeatOn") {
+        if repeatButton.currentImage == UIImage(named:"repeat") {
+            if player?.timeControlStatus == .playing {
+                self.player.pause()
+            }
+            configurePlayButton()
+            player.seek(to: CMTime.zero)
+            
+            if shuffleButton.currentImage == UIImage(named: "shuffleOn") {
+                
+                if shuffledArray.count == 1 {
+                    lastSongIndex = shuffledArray[0]
+                }
+                if shuffledArray.count == 0 {
+                    shuffle()
+                    if shuffledArray[0] == lastSongIndex {
+                        shuffledArray.removeFirst()
+                    }
+                }
+                player.replaceCurrentItem(with: playerItems[shuffledArray[0]])
+                shuffledArray.removeFirst()
+            }
+            else{
+                var index =  playerItems.index(of: player.currentItem!) ?? 0
+                if index == playerItems.count - 1 {
+                    player.pause()
+                    configurePlayButton()
+                    return
+                }
+                else {
+                    index = index + 1
+                }
+                player.replaceCurrentItem(with: playerItems[index])
+            }
+        }
+        if repeatButton.currentImage == UIImage(named:"repeatAll") {
             if player?.timeControlStatus == .playing {
                 self.player.pause()
             }
@@ -120,7 +163,7 @@ class AudioPlayerViewController: UIViewController {
                 player.replaceCurrentItem(with: playerItems[index])
             }
         }
-        else {
+        if repeatButton.currentImage == UIImage(named:"repeatCurrent") {
             let index =  playerItems.index(of: player.currentItem!) ?? 0
             self.player?.seek(to: CMTime.zero)
             player.replaceCurrentItem(with: playerItems[index])
