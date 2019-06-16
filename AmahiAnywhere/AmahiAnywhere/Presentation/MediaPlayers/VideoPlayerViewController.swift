@@ -28,16 +28,16 @@ class VideoPlayerViewController: UIViewController {
     @IBOutlet private weak var volumeView: UIView!
     @IBOutlet private weak var volumeLabel: UILabel!
     @IBOutlet private weak var moreButton: UIButton!
+    
     private var doubleTapGesture: UITapGestureRecognizer!
     private var tapGesture: UITapGestureRecognizer!
-    
-    // Set the media url from the presenting Viewcontroller
     private var idleTimer: Timer?
-    private var mediaPlayer: VLCMediaPlayer?
-    public var mediaURL: URL!
-    
     private var hasMediaFileParseFinished = false
     private var hasPlayStarted = false
+    
+    public var mediaPlayer: VLCMediaPlayer?
+    public var mediaURL: URL!
+    public var captionsAvailable: [String] = []
     
     let videoPlayerSettings = VideoPlayerSettings()
     
@@ -45,7 +45,6 @@ class VideoPlayerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         let scrobbleTapGesture = UITapGestureRecognizer(target: self, action:  #selector(userTapScrobblePosition(_:)))
         timeSlider.addGestureRecognizer(scrobbleTapGesture)
         
@@ -115,6 +114,21 @@ class VideoPlayerViewController: UIViewController {
         }
     }
     
+    func setUpCaptionsArray() {
+        let tempArray = mediaPlayer?.videoSubTitlesNames
+        var captions: [String] = []
+        for name in tempArray! {
+            let caption = "\(name)"
+            if caption == "Disable" {
+                continue
+            }
+            else {
+                let captionAvailable = caption.getDataInParenthesis(from: "[", to: "]")
+                captions.append(captionAvailable!)
+            }
+        }
+        captionsAvailable = captions
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -144,20 +158,18 @@ class VideoPlayerViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
         UIApplication.shared.beginReceivingRemoteControlEvents()
         if canBecomeFirstResponder {
             becomeFirstResponder()
         }
+        VideoPlayerSettings.currentSubtitleIndex = 0
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
         if let _ = mediaPlayer?.isPlaying {
             mediaPlayer?.pause()
         }
-        
         if idleTimer != nil {
             idleTimer?.invalidate()
             idleTimer = nil
@@ -166,9 +178,7 @@ class VideoPlayerViewController: UIViewController {
     }
     
     override func remoteControlReceived(with event: UIEvent?) {
-        
         guard let event = event else { return }
-        
         if event.type == UIEvent.EventType.remoteControl {
             if event.subtype == .remoteControlPause || event.subtype == .remoteControlPlay {
                 playandPause(self)
@@ -196,9 +206,7 @@ class VideoPlayerViewController: UIViewController {
     }
     
     private func setUpIndicatorLayers(imageView: UIImageView) {
-        
         imageView.layer.shadowColor = UIColor.softYellow.cgColor
-        
         let image = imageView.image
         let templateImage = image?.withRenderingMode(.alwaysTemplate)
         imageView.image = templateImage
@@ -329,6 +337,7 @@ class VideoPlayerViewController: UIViewController {
     }
     
     @IBAction private func moreButtonPressed(_ sender: Any) {
+        setUpCaptionsArray()
         moreButtonFunction()
     }
     
@@ -338,6 +347,8 @@ class VideoPlayerViewController: UIViewController {
       } else {
             AppUtility.lockOrientation(.portrait)
       }
+      videoPlayerSettings.addCaptionsInArray(array: captionsAvailable)
+      videoPlayerSettings.videoPlayer = self.mediaPlayer
       videoPlayerSettings.setupVideoScreen()
     }
     
@@ -462,5 +473,15 @@ extension VideoPlayerViewController : UIGestureRecognizerDelegate {
             return true
         }
         return false
+    }
+}
+
+extension String {
+    func getDataInParenthesis(from: String, to: String) -> String? {
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
+                substring(with: substringFrom..<substringTo)
+            }
+        }
     }
 }

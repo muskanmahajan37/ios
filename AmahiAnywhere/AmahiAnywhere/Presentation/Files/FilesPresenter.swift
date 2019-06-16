@@ -119,6 +119,7 @@ internal class FilesPresenter: BasePresenter {
                 return
             }
             self.view?.playMedia(at: url)
+            //self.view?.playMedia(at: url)
             break
             
         case MimeType.audio:

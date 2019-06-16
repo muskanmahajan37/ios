@@ -45,6 +45,11 @@ class VideoMenuCellSettings: UICollectionViewCell {
         setupViews()
     }
     
+    func removeViews() {
+        optionName.removeFromSuperview()
+        iconImageView.removeFromSuperview()
+    }
+    
     func setupViews() {
         addSubview(optionName)
         addSubview(iconImageView)

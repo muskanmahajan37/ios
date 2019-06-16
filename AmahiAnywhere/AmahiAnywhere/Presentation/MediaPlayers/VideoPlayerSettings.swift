@@ -12,7 +12,7 @@ class Options: NSObject {
     let name: String
     let imageName: String
     
-    init(name: String, imageName: String){
+    init(name: String, imageName: String) {
         self.name = name
         self.imageName = imageName
     }
@@ -22,6 +22,7 @@ class VideoPlayerSettings: NSObject, UICollectionViewDelegate, UICollectionViewD
     
     // darkView is to darken the background when moreButton is pressed
     let darkView = UIView()
+    public var videoPlayer: VLCMediaPlayer?
     
     let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -32,55 +33,121 @@ class VideoPlayerSettings: NSObject, UICollectionViewDelegate, UICollectionViewD
     
     let cellID = "cellID"
     let cellHeight: CGFloat = 50
+    static var currentSubtitleIndex = 0
+    
+    var captionsArray: [Options] = {
+        return[Options(name: "No captions", imageName: "tick")]
+    }()
+    
+    func addCaptionsInArray(array: [String]) {
+        for x in array {
+            captionsArray.append(Options(name: "\(x)", imageName: ""))
+        }
+    }
+    
+    func addCancelOption() {
+        captionsArray.append(Options(name: "Cancel", imageName: "whiteCross"))
+    }
+    
+    var currentArray: [Options] = []
     
     let options: [Options] = {
         return[Options(name: "Captions", imageName: "captions"), Options(name: "Audio Track", imageName: "audioTrack"), Options(name: "Cancel", imageName: "whiteCross")]
     }()
     
-    func setupVideoScreen(){
+    func setupVideoScreenOptions(currentArray: [Options]) {
         self.collectionView.reloadData()
+        
         if let screen = UIApplication.shared.keyWindow {
             darkView.backgroundColor = UIColor(white: 0, alpha: 0.5)
             darkView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissDarkView)))
             screen.addSubview(darkView)
             screen.addSubview(collectionView)
             
-            let height: CGFloat = CGFloat(options.count) * cellHeight
+            let height: CGFloat = CGFloat(currentArray.count) * cellHeight
             let y = screen.frame.height - height
             collectionView.frame = CGRect(x: 0, y: screen.frame.height, width: screen.frame.width, height: height)
             
             darkView.frame = screen.frame
             darkView.alpha = 0
             
-            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                self.darkView.alpha = 1
-                self.collectionView.alpha = 1
-                self.collectionView.frame = CGRect(x: 0, y: y, width: self.collectionView.frame.width, height: self.collectionView.frame.height)
-            }, completion: nil)
+            if captionsArray.count == 1 && currentArray == captionsArray {
+                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                    self.darkView.alpha = 1
+                    self.collectionView.alpha = 1
+                    self.collectionView.frame = CGRect(x: 0, y: y, width: self.collectionView.frame.width, height: self.collectionView.frame.height)
+                }, completion: nil)
+            }
+            else {
+                UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                    self.darkView.alpha = 1
+                    self.collectionView.alpha = 1
+                    self.collectionView.frame = CGRect(x: 0, y: y, width: self.collectionView.frame.width, height: self.collectionView.frame.height)
+                }, completion: nil)
+            }
         }
     }
     
+    func setupVideoScreen()  {
+     setupVideoScreenOptions(currentArray: options)
+     currentArray = options
+    }
+    
     @objc func dismissDarkView() {
+        defaultOption.removeFromSuperview()
         AppUtility.lockOrientation(.all)
-        collectionView.reloadData()
-        UIView.animate(withDuration: 0.5) {
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             self.darkView.alpha = 0
             self.collectionView.alpha = 0
             if let screen = UIApplication.shared.keyWindow {
                 self.collectionView.frame = CGRect(x: 0, y: screen.frame.height, width: self.collectionView.frame.width, height: self.collectionView.frame.height)
             }
-        }
+        })
+        captionsArray = [Options(name: "No captions", imageName: "")]
+        collectionView.reloadData()
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return options.count
+        if captionsArray.count == 1 && currentArray == captionsArray {
+            return 1
+        }
+        return currentArray.count
     }
     
+    let defaultOption: UILabel = {
+        let label = UILabel()
+        label.text = "No captions are available"
+        label.font = UIFont.systemFont(ofSize: 13)
+        label.textColor = UIColor.white
+        return label
+    }()
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        defaultOption.removeFromSuperview()
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellID, for: indexPath) as! VideoMenuCellSettings
-        let option = options[indexPath.item]
-        cell.option = option
-        return cell
+        cell.setupViews()
+        
+        if captionsArray.count == 1 && currentArray == captionsArray {
+            cell.addSubview(defaultOption)
+            cell.removeViews()
+            cell.updateConstraints()
+            cell.addConstraintsWithFormat(format: "H:|-8-[v0]|", views: defaultOption)
+            cell.addConstraintsWithFormat(format: "V:|[v0]|", views: defaultOption)
+            return cell
+        }
+        else {
+            let option = currentArray[indexPath.item]
+            cell.option = option
+            if currentArray == captionsArray && cell.optionName.text != "Cancel" {
+                if indexPath.last! == VideoPlayerSettings.currentSubtitleIndex {
+                    cell.iconImageView.image = UIImage(named: "tick")
+                }
+                else {
+                    cell.iconImageView.image = UIImage(named: "")
+                }
+            }
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -99,15 +166,11 @@ class VideoPlayerSettings: NSObject, UICollectionViewDelegate, UICollectionViewD
             cell.backgroundColor = UIColor(red:28/255, green:28/255, blue:27/255, alpha:1)
         }
         
-        let captions = "Captions"
-        let audioTrack = "Audio Track"
+        
         let cancel = "Cancel"
-        switch cell.optionName.text {
-        case captions:
-            print(captions)
-        case audioTrack:
-            print(audioTrack)
-        case cancel:
+        
+        if cell.optionName.text == cancel {
+            AppUtility.lockOrientation(.all)
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
                 self.darkView.alpha = 0
                 self.collectionView.alpha = 0
@@ -115,8 +178,76 @@ class VideoPlayerSettings: NSObject, UICollectionViewDelegate, UICollectionViewD
                     self.collectionView.frame = CGRect(x: 0, y: screen.frame.height, width: self.collectionView.frame.width, height: self.collectionView.frame.height)
                 }
             })
+            captionsArray = [Options(name: "No captions", imageName: "")]
+            collectionView.reloadData()
+            return
+        }
+        
+        let captions = "Captions"
+        let audioTrack = "Audio Track"
+        
+        switch cell.optionName.text {
+            
+        case captions:
+            AppUtility.lockOrientation(.all)
+            if captionsArray.count != 1 {
+                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1,
+                    options: .curveEaseOut, animations: {
+                        self.darkView.alpha = 0
+                        self.collectionView.alpha = 0
+                        if let screen = UIApplication.shared.keyWindow {
+                            self.collectionView.frame = CGRect(x: 0, y: screen.frame.height, width: self.collectionView.frame.width, height: self.collectionView.frame.height)
+                        }
+                }) { (success) in
+                    
+                    self.addCancelOption()
+                    self.currentArray = self.captionsArray
+                    collectionView.reloadData()
+                    self.setupVideoScreenOptions(currentArray: self.captionsArray)
+                }
+            }
+            else {
+                currentArray = captionsArray
+                self.darkView.alpha = 0
+                setupVideoScreenOptions(currentArray: captionsArray)
+                UIView.animate(withDuration: 0.5, delay: 2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                    self.darkView.alpha = 0
+                    self.collectionView.alpha = 0
+                    if let screen = UIApplication.shared.keyWindow {
+                        self.collectionView.frame = CGRect(x: 0, y: screen.frame.height, width: self.collectionView.frame.width, height: self.collectionView.frame.height)
+                    }
+                })
+            }
+            return
+            
+        case audioTrack:
+            print(audioTrack)
+            
         default:
             break
+        }
+        
+        if currentArray == captionsArray {
+            AppUtility.lockOrientation(.all)
+            if indexPath.last! == 0 {
+                videoPlayer?.currentVideoSubTitleIndex = -1
+                VideoPlayerSettings.currentSubtitleIndex = 0
+            }
+            else {
+                videoPlayer?.currentVideoSubTitleIndex = Int32(indexPath.last! + 1)
+                cell.iconImageView.image = UIImage(named: "tick")
+                VideoPlayerSettings.currentSubtitleIndex = indexPath.last!
+            }
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                self.darkView.alpha = 0
+                self.collectionView.alpha = 0
+                if let screen = UIApplication.shared.keyWindow {
+                    self.collectionView.frame = CGRect(x: 0, y: screen.frame.height, width: self.collectionView.frame.width, height: self.collectionView.frame.height)
+                }
+            })
+            captionsArray = [Options(name: "No captions", imageName: "")]
+            collectionView.reloadData()
+            return
         }
     }
     
@@ -126,7 +257,6 @@ class VideoPlayerSettings: NSObject, UICollectionViewDelegate, UICollectionViewD
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(VideoMenuCellSettings.self, forCellWithReuseIdentifier: cellID)
-        
     }
     
 }
