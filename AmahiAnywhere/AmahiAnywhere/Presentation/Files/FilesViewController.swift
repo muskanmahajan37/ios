@@ -87,6 +87,18 @@ GCKRemoteMediaClientListener, GCKRequestDelegate {
                                                    width: CGFloat(24), height: CGFloat(24)))
         castButton.tintColor = UIColor.white
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: castButton)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(castDeviceDidChange),
+                                               name: NSNotification.Name.gckCastStateDidChange,
+                                               object: GCKCastContext.sharedInstance())
+    }
+    
+    @objc func castDeviceDidChange(_: Notification) {
+        if GCKCastContext.sharedInstance().castState != .noDevicesAvailable {
+            // You can present the instructions on how to use Google Cast on
+            // the first time the user uses you app
+            GCKCastContext.sharedInstance().presentCastInstructionsViewControllerOnce(with: castButton)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
