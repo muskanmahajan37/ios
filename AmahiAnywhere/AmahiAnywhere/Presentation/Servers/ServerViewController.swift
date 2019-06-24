@@ -7,8 +7,11 @@
 //
 
 import UIKit
+import GoogleCast
 
 class ServerViewController: BaseUIViewController {
+    
+    private var castButton: GCKUICastButton!
     
     private var presenter: ServerPresenter!
     @IBOutlet var serversCollectionView: UICollectionView!
@@ -33,6 +36,11 @@ class ServerViewController: BaseUIViewController {
                 
         presenter = ServerPresenter(self)
         presenter.fetchServers()
+        
+        castButton = GCKUICastButton(frame: CGRect(x: CGFloat(0), y: CGFloat(0),
+                                                   width: CGFloat(24), height: CGFloat(24)))
+        castButton.tintColor = UIColor.white
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: castButton)
     }
     
     @objc func handleRefresh(sender: UIRefreshControl) {
