@@ -84,7 +84,7 @@ extension UIViewController {
         self.navigationController?.navigationBar.backgroundColor = UIColor.remoteIndicatorBrown
     }
     
-    func showDownloadsIconIfOfflineFileExists() {
+  /*  func showDownloadsIconIfOfflineFileExists() {
         let delegate = UIApplication.shared.delegate as! AppDelegate
         let stack = delegate.stack
         
@@ -102,7 +102,7 @@ extension UIViewController {
         } else {
             navigationItem.rightBarButtonItem = nil
         }
-    }
+    } */
     
     @objc func userClickedDownloadsIcon() {
         let offlineFileVc = viewController(viewControllerClass: OfflineFilesTableViewController.self,

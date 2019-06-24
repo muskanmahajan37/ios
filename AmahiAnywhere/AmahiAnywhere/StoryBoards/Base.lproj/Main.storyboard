@@ -422,7 +422,7 @@
                             <fragment content="Pull To Refresh">
                                 <attributes>
                                     <color key="NSColor" red="0.5712444479695431" green="0.5712444479695431" blue="0.5712444479695431" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <font key="NSFont" metaFont="controlContent" size="11"/>
+                                    <font key="NSFont" metaFont="label" size="11"/>
                                     <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                 </attributes>
                             </fragment>

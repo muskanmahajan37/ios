@@ -9,12 +9,15 @@
 import UIKit
 import Lightbox
 import AVFoundation
+import GoogleCast
 
 class FilesViewController: BaseUIViewController {
     
     // Mark - Server properties, will be set from presenting class
     public var directory: ServerFile?
     public var share: ServerShare!
+    
+    private var castButton: GCKUICastButton!
     
     // Mark - TableView data properties
     internal var serverFiles: [ServerFile] = [ServerFile]()
@@ -56,12 +59,16 @@ class FilesViewController: BaseUIViewController {
         self.navigationItem.title = getTitle()
         
         presenter.getFiles(share, directory: directory)
+        
+        castButton = GCKUICastButton(frame: CGRect(x: CGFloat(0), y: CGFloat(0),
+                                                   width: CGFloat(24), height: CGFloat(24)))
+        castButton.tintColor = UIColor.white
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: castButton)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        showDownloadsIconIfOfflineFileExists()
+        // showDownloadsIconIfOfflineFileExists()
         presenter.loadOfflineFiles()
     }
     
