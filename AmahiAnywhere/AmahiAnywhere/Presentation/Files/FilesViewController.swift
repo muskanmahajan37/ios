@@ -11,7 +11,30 @@ import Lightbox
 import AVFoundation
 import GoogleCast
 
-class FilesViewController: BaseUIViewController {
+class FilesViewController: BaseUIViewController, GCKSessionManagerListener,
+GCKRemoteMediaClientListener, GCKRequestDelegate {
+    
+    enum PlaybackMode: Int {
+        case none = 0
+        case local
+        case remote
+    }
+    
+    var mediaInfo: GCKMediaInformation? {
+        didSet {
+            print("setMediaInfo: \(String(describing: mediaInfo))")
+        }
+    }
+    
+    public var sessionManager: GCKSessionManager!
+    public var mediaInformation: GCKMediaInformation?
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        sessionManager = GCKCastContext.sharedInstance().sessionManager
+    }
+    
+    public var playbackMode = PlaybackMode.none
     
     // Mark - Server properties, will be set from presenting class
     public var directory: ServerFile?
@@ -70,6 +93,23 @@ class FilesViewController: BaseUIViewController {
         super.viewWillAppear(animated)
         // showDownloadsIconIfOfflineFileExists()
         presenter.loadOfflineFiles()
+        let hasConnectedSession: Bool = (sessionManager.hasConnectedSession())
+        if hasConnectedSession, (playbackMode != .remote) {
+            //populateMediaInfo(false, playPosition: 0)
+            //switchToRemotePlayback()
+            // Do: Cast the video
+            
+        } else if sessionManager.currentSession == nil, (playbackMode != .local) {
+            //switchToLocalPlayback()
+            // Do: Play locally
+            
+        }
+        sessionManager.add(self)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+            sessionManager.remove(self)
+            super.viewWillDisappear(animated)
     }
     
     @objc func handleLongPress(sender: UIGestureRecognizer) {
@@ -151,5 +191,55 @@ class FilesViewController: BaseUIViewController {
         let vc: FilesViewController = segue.destination as! FilesViewController
         vc.share = self.share
         vc.directory = filteredFiles[(filesTableView.indexPathForSelectedRow?.row)!]
+    }
+    
+    // MARK: - GCKSessionManagerListener
+    
+    func sessionManager(_: GCKSessionManager, didStart session: GCKSession) {
+        print("MediaViewController: sessionManager didStartSession \(session)")
+        //setQueueButtonVisible(true)
+        //switchToRemotePlayback()
+    }
+    
+    func sessionManager(_: GCKSessionManager, didResumeSession session: GCKSession) {
+        print("MediaViewController: sessionManager didResumeSession \(session)")
+        //setQueueButtonVisible(true)
+        //switchToRemotePlayback()
+    }
+    
+    func sessionManager(_: GCKSessionManager, didEnd _: GCKSession, withError error: Error?) {
+        print("session ended with error: \(String(describing: error))")
+        let message = "The Casting session has ended.\n\(String(describing: error))"
+        if let window = appDelegate!.window {
+            Toast.displayMessage(message, for: 3, in: window)
+        }
+        //setQueueButtonVisible(false)
+        //switchToLocalPlayback()
+    }
+    
+    func sessionManager(_: GCKSessionManager, didFailToStartSessionWithError error: Error?) {
+        if let error = error {
+            showAlert(withTitle: "Failed to start a session", message: error.localizedDescription)
+        }
+        //setQueueButtonVisible(false)
+    }
+    
+    func showAlert(withTitle title: String, message: String) {
+        let alert = UIAlertView(title: title,
+                                message: message,
+                                delegate: nil,
+                                cancelButtonTitle: "OK",
+                                otherButtonTitles: "")
+        alert.show()
+    }
+    
+    func sessionManager(_: GCKSessionManager,
+                        didFailToResumeSession _: GCKSession, withError _: Error?) {
+        if let window = UIApplication.shared.delegate?.window {
+            Toast.displayMessage("The Casting session could not be resumed.",
+                                 for: 3, in: window)
+        }
+        //setQueueButtonVisible(false)
+        //switchToLocalPlayback()
     }
 }

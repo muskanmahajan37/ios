@@ -12,16 +12,18 @@ import EVReflection
 import AVFoundation
 import GoogleCast
 
+let appDelegate = (UIApplication.shared.delegate as? AppDelegate)
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     fileprivate var enableSDKLogging = true
     private let appID = "A5AF03C5"
-
+    
     var window: UIWindow?
+    
     let stack = CoreDataStack(modelName: "OfflineFilesModel")!
     var backgroundSessionCompletionHandler: (() -> Void)?
-    
     
     var orientationLock = UIInterfaceOrientationMask.all
     

@@ -10,6 +10,7 @@ import Foundation
 import SDWebImage
 import Lightbox
 import AVFoundation
+import GoogleCast
 
 extension FilesViewController : UITableViewDelegate, UITableViewDataSource {
     
@@ -46,7 +47,6 @@ extension FilesViewController : UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
         presenter.handleFileOpening(fileIndex: indexPath.row, files: filteredFiles, from: tableView.cellForRow(at: indexPath))
         tableView.deselectRow(at: indexPath, animated: true)
     }

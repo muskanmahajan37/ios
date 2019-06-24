@@ -10,6 +10,7 @@ import Foundation
 import Lightbox
 import CoreData
 import AVFoundation
+import GoogleCast
 
 internal protocol FilesView : BaseView {
     func initFiles(_ files: [ServerFile])
@@ -20,7 +21,7 @@ internal protocol FilesView : BaseView {
     
     func present(_ controller: UIViewController)
     
-    func playMedia(at url: URL)
+    func playMedia(at url: URL, file: ServerFile)
     
     func playAudio(_ items: [AVPlayerItem], startIndex: Int, currentIndex: Int,_ URLs: [URL])
     
@@ -33,7 +34,16 @@ internal protocol FilesView : BaseView {
     func dismissProgressIndicator(at url: URL, completion: @escaping () -> Void)
 }
 
-internal class FilesPresenter: BasePresenter {
+class FilesPresenter: BasePresenter {
+    
+    enum PlaybackMode: Int {
+        case none = 0
+        case local
+        case remote
+    }
+    
+    private var playbackMode = PlaybackMode.none
+    private var sessionManager: GCKSessionManager! 
     
     weak private var view: FilesView?
     private var offlineFiles : [String: OfflineFile]?
@@ -113,12 +123,12 @@ internal class FilesPresenter: BasePresenter {
             
         case .video, .flacMedia:
             // TODO: open VideoPlayer and play the file
-            
             guard let url = ServerApi.shared!.getFileUri(file) else {
                 AmahiLogger.log("Invalid file URL, file cannot be opened")
                 return
             }
-            self.view?.playMedia(at: url)
+            self.view?.playMedia(at: url, file: file)
+         
             
         case .audio:
             let audioURLs = prepareAudioItems(files)
