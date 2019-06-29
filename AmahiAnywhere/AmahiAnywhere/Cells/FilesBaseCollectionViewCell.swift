@@ -31,9 +31,9 @@ class FilesBaseCollectionCell: SwipeCollectionViewCell{
             break
             
         case .video:
-            
-            if let image = VideoThumbnailGenerator.imageFromMemory(for: url) {
-                iconImageView.image = image
+            iconImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "video"), options: .refreshCached)
+            if iconImageView.image != nil {
+                AmahiLogger.log("Video Thumbnail for \(url) obtained from cache")
             } else {
                 iconImageView.image = UIImage(named: "video")
                 DispatchQueue.global(qos: .background).async {
@@ -47,9 +47,9 @@ class FilesBaseCollectionCell: SwipeCollectionViewCell{
             break
             
         case .audio:
-            
-            if let image = AudioThumbnailGenerator.imageFromMemory(for: url) {
-                iconImageView.image = image
+            iconImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "audio"), options: .refreshCached)
+            if iconImageView.image != nil {
+                AmahiLogger.log("Audio Thumbnail for \(url) obtained from cache")
             } else {
                 iconImageView.image = UIImage(named: "audio")
                 DispatchQueue.global(qos: .background).async {
@@ -64,8 +64,9 @@ class FilesBaseCollectionCell: SwipeCollectionViewCell{
             
         case .presentation, .document, .spreadsheet:
             
-            if let image = PDFThumbnailGenerator.imageFromMemory(for: url) {
-                iconImageView.image = image
+            iconImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "file"), options: .refreshCached)
+            if iconImageView.image != nil {
+                AmahiLogger.log("Document Thumbnail for \(url) obtained from cache")
             } else {
                 iconImageView.image = UIImage(named: "file")
                 
