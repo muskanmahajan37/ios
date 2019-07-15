@@ -12,7 +12,7 @@ import AVFoundation
 import GoogleCast
 import Floaty
 
-class FilesViewController: BaseUIViewController, GCKRemoteMediaClientListener, GCKRequestDelegate {
+class FilesViewController: BaseUIViewController, GCKRemoteMediaClientListener {
     
     enum PlaybackMode: Int {
         case none = 0
