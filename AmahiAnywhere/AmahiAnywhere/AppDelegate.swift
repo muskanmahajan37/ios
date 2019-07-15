@@ -12,29 +12,56 @@ import EVReflection
 import AVFoundation
 import GoogleCast
 
+let kPrefPreloadTime = "preload_time_sec"
+let kPrefEnableAnalyticsLogging = "enable_analytics_logging"
+let kPrefAppVersion = "app_version"
+let kPrefSDKVersion = "sdk_version"
+let kPrefEnableMediaNotifications = "enable_media_notifications"
+
 let appDelegate = (UIApplication.shared.delegate as? AppDelegate)
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
+    fileprivate var firstUserDefaultsSync = false
     fileprivate var enableSDKLogging = true
-    private let appID = ApiConfig.appID
     
-    var window: UIWindow?
+    let appID = ApiConfig.appID
     let stack = CoreDataStack(modelName: "OfflineFilesModel")!
+    
+    var mediaNotificationsEnabled = false
+    var isCastControlBarsEnabled: Bool!
+    var window: UIWindow?
     var backgroundSessionCompletionHandler: (() -> Void)?
-    
-    
     var orientationLock = UIInterfaceOrientationMask.all
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         return self.orientationLock
     }
-
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        populateRegistrationDomain()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(syncWithUserDefaults),
+                                               name: UserDefaults.didChangeNotification,
+                                               object: nil)
+        firstUserDefaultsSync = true
+        syncWithUserDefaults()
+        GCKCastContext.sharedInstance().sessionManager.add(self)
+        
+        let options = GCKCastOptions(discoveryCriteria: GCKDiscoveryCriteria(applicationID: appID))
+        options.physicalVolumeButtonsWillControlDeviceVolume = true
+        GCKCastContext.setSharedInstanceWith(options)
+        
+        let logFilter = GCKLoggerFilter()
+        logFilter.minimumLevel = .verbose
+        GCKLogger.sharedInstance().filter = logFilter
+        GCKLogger.sharedInstance().delegate = self
+        
         // Override point for customization after application launch.
         IQKeyboardManager.shared.enable = true
-    
+        
         //LocalStorage.shared.delete(key: "walkthrough")
         
         self.window = UIWindow(frame: UIScreen.main.bounds)
@@ -75,24 +102,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             AmahiLogger.log("Setting category to AVAudioSessionCategoryPlayback failed.")
         }
         application.beginReceivingRemoteControlEvents()
-
+        
         // Remove previous data in core data and delete all files in download folders.
-//        removeAllDataFromDownloadsAndCoreData()
+        //        removeAllDataFromDownloadsAndCoreData()
         
         // The Load some offline files. Only used for debug
-//         preloadData()
+        //         preloadData()
         
         // Start Autosaving, tries to do autosave every 5 minutes if any changes is waiting to be persisted.
         stack.autoSave(60 * 5)
-        
-        let options = GCKCastOptions(discoveryCriteria: GCKDiscoveryCriteria(applicationID: appID))
-        options.physicalVolumeButtonsWillControlDeviceVolume = true
-        GCKCastContext.setSharedInstanceWith(options)
-        
-        let logFilter = GCKLoggerFilter()
-        logFilter.minimumLevel = .verbose
-        GCKLogger.sharedInstance().filter = logFilter
-        GCKLogger.sharedInstance().delegate = self
         
         return true
     }
@@ -112,7 +130,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             AmahiLogger.log("Error while saving. \(error.localizedDescription)")
         }
     }
-
+    
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
@@ -123,17 +141,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             AmahiLogger.log("Error while saving. \(error.localizedDescription)")
         }
     }
-
+    
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
     }
-
+    
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
-
+    
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+        NotificationCenter.default.removeObserver(self,
+                                                  name: NSNotification.Name.gckExpandedMediaControlsTriggered,
+                                                  object: nil)
     }
     
     // Mark - Only for debug
@@ -155,21 +176,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         for i in 1..<6 {
             // Create some offline files for test
             let _ = OfflineFile(name: "Offline File: \(i)",
-                                          mime: "text/plain",
-                                          size: 7 * 1024 * 1024,
-                                          mtime: Date(),
-                                          fileUri: "",
-                                          localPath: "",
-                                          progress: Float(i) * 0.11,
-                                          state: OfflineFileState.downloading,
-                                          context: stack.context)
+                mime: "text/plain",
+                size: 7 * 1024 * 1024,
+                mtime: Date(),
+                fileUri: "",
+                localPath: "",
+                progress: Float(i) * 0.11,
+                state: OfflineFileState.downloading,
+                context: stack.context)
         }
     }
 }
 
 // Helper function inserted by Swift 4.2 migrator.
 fileprivate func convertFromAVAudioSessionCategory(_ input: AVAudioSession.Category) -> String {
-	return input.rawValue
+    return input.rawValue
 }
 
 // MARK: - GCKLoggerDelegate
@@ -180,7 +201,6 @@ extension AppDelegate: GCKLoggerDelegate {
                     fromFunction function: String,
                     location: String) {
         if enableSDKLogging {
-            // Send SDK's log messages directly to the console.
             print("\(location): \(function) - \(message)")
         }
     }
@@ -209,5 +229,50 @@ extension AppDelegate: GCKSessionManagerListener {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ok", style: .default))
         window?.rootViewController?.present(alert, animated: true, completion: nil)
+    }
+}
+
+// MARK: - Working with default values
+
+extension AppDelegate {
+    func populateRegistrationDomain() {
+        let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")
+        var appDefaults = [String: Any]()
+        if let settingsBundleURL = Bundle.main.url(forResource: "Settings", withExtension: "bundle") {
+            loadDefaults(&appDefaults, fromSettingsPage: "Root", inSettingsBundleAt: settingsBundleURL)
+        }
+        let userDefaults = UserDefaults.standard
+        userDefaults.register(defaults: appDefaults)
+        userDefaults.setValue(appVersion, forKey: kPrefAppVersion)
+        userDefaults.setValue(kGCKFrameworkVersion, forKey: kPrefSDKVersion)
+        userDefaults.synchronize()
+    }
+    
+    func loadDefaults(_ appDefaults: inout [String: Any], fromSettingsPage plistName: String,
+                      inSettingsBundleAt settingsBundleURL: URL) {
+        let plistFileName = plistName.appending(".plist")
+        let settingsDict = NSDictionary(contentsOf: settingsBundleURL.appendingPathComponent(plistFileName))
+        if let prefSpecifierArray = settingsDict?["PreferenceSpecifiers"] as? [[AnyHashable: Any]] {
+            for prefItem in prefSpecifierArray {
+                let prefItemType = prefItem["Type"] as? String
+                let prefItemKey = prefItem["Key"] as? String
+                let prefItemDefaultValue = prefItem["DefaultValue"] as? String
+                if prefItemType == "PSChildPaneSpecifier" {
+                    if let prefItemFile = prefItem["File"] as? String {
+                        loadDefaults(&appDefaults, fromSettingsPage: prefItemFile, inSettingsBundleAt: settingsBundleURL)
+                    }
+                } else if let prefItemKey = prefItemKey, let prefItemDefaultValue = prefItemDefaultValue {
+                    appDefaults[prefItemKey] = prefItemDefaultValue
+                }
+            }
+        }
+    }
+    
+    @objc func syncWithUserDefaults() {
+        let userDefaults = UserDefaults.standard
+        
+        let mediaNotificationsEnabled = userDefaults.bool(forKey: kPrefEnableMediaNotifications)
+        GCKLogger.sharedInstance().delegate?.logMessage?("Notifications on? \(mediaNotificationsEnabled)", at: .debug, fromFunction: #function, location: "AppDelegate.swift")
+        firstUserDefaultsSync = false
     }
 }
