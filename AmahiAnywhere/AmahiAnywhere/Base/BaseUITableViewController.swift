@@ -52,8 +52,8 @@ class BaseUITableViewController: UITableViewController, GCKSessionManagerListene
     }
     
     @objc func didTapQueueButton(){
-        //  let queueVC = self.instantiateViewController (withIdentifier: StoryBoardIdentifiers.navigationBarController, from: StoryBoardIdentifiers.main)
-        // self.present(queueVC, animated: true, completion: nil)
+        let queueVC = self.instantiateViewController (withIdentifier: StoryBoardIdentifiers.navigationBarController, from: StoryBoardIdentifiers.main)
+        self.present(queueVC, animated: true, completion: nil)
     }
     
     func setQueueButtonVisible(_ visible: Bool) {
