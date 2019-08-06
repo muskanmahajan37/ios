@@ -31,7 +31,12 @@ class FilesBaseCollectionCell: SwipeCollectionViewCell{
         
         switch type {
         case MimeType.image:
-            iconImageView.sd_setImage(with: urlThumbnail, placeholderImage: UIImage(named: "image"), options: .refreshCached)
+            if ServerApi.shared?.getServer()?.name! == "Welcome to Amahi" {
+                iconImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "image"), options: .refreshCached)
+            }
+            else {
+                iconImageView.sd_setImage(with: urlThumbnail, placeholderImage: UIImage(named: "image"), options: .refreshCached)
+            }
             break
         case .video:
             if let image = VideoThumbnailGenerator.imageFromMemory(for: url) {
