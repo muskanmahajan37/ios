@@ -120,6 +120,30 @@ public class Network {
         }
     }
     
+    public func uploadFile(_ url: String!, data: Data, fileName: String!, mime: String!, parameters: Parameters = [:], headers: HTTPHeaders = [:], completion: @escaping (_ isSuccessful: Bool ) -> Void) {
+           Alamofire.upload(multipartFormData: { multipartFormData in
+               for (key,value) in parameters {
+                   multipartFormData.append((value as! String).data(using: .utf8)!, withName: key)
+               }
+               multipartFormData.append(data, withName: "file", fileName: fileName,mimeType: mime)
+           },
+                            usingThreshold: UInt64.init(),
+                            to: url,
+                            method: .post,
+                            encodingCompletion: { encodingResult in
+                               switch encodingResult {
+                               case .success(let upload, _, _):
+                                upload.response { response in
+                                       debugPrint(response)
+                                       completion(true)
+                                   }
+                               case .failure(let encodingError):
+                                   print(encodingError)
+                                   completion(false)
+                               }
+           })
+       }
+    
     public func downloadFileToStorage(file: ServerFile,
                                       progressCompletion: @escaping (_ percent: Float) -> Void,
                                       completion: @escaping (_ isSuccessful: Bool ) -> Void) {

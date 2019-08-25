@@ -210,4 +210,22 @@ class ServerApi {
         
         return components.url
     }
+    
+    public func getShareUri(_ share: ServerShare) -> URL? {
+        var components = URLComponents(string: serverAddress!)!
+        components.path = "/files"
+        
+        components.queryItems = [
+            URLQueryItem(name: "s", value: share.name),
+            URLQueryItem(name: "session", value: server.session_token)
+        ]
+        
+        if let authToken = auth_token{
+            components.queryItems?.append(URLQueryItem(name: "auth", value: authToken))
+        }
+        components.percentEncodedQuery = components.percentEncodedQuery?
+            .replacingOccurrences(of: "+", with: "%2B")
+        
+        return components.url
+    }
 }

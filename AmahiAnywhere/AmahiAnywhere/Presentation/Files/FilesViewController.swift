@@ -33,6 +33,9 @@ class FilesViewController: BaseUIViewController, GCKRemoteMediaClientListener {
         }
     }
     
+    //fileTypeNumber: Image = 0, Video = 1, Document = 2
+    var fileTypeNumber = 0
+    
     public var sessionManager: GCKSessionManager!
     public var mediaInformation: GCKMediaInformation?
     public var mediaClient: GCKRemoteMediaClient!
@@ -139,6 +142,7 @@ class FilesViewController: BaseUIViewController, GCKRemoteMediaClientListener {
     
     @objc func uploadDocumentTapped(){
         self.present(documentPicker, animated: true, completion: nil)
+        self.fileTypeNumber = 2
     }
     
     @objc func expiredAuthTokenHDA(){
@@ -154,6 +158,7 @@ class FilesViewController: BaseUIViewController, GCKRemoteMediaClientListener {
     
     func uploadImageVideoTapped(isTypePhoto: Bool){
         imagePicker.mediaTypes = isTypePhoto ? [kUTTypeImage as String] : [kUTTypeMovie as String]
+        self.fileTypeNumber = isTypePhoto ? 0 : 1
         let libraryTitle = isTypePhoto ? "Photo Library" : "Video Library"
         
         let alertVC = UIAlertController(title: "Select your source", message: nil, preferredStyle: .actionSheet)
@@ -571,8 +576,90 @@ extension FilesViewController: UINavigationControllerDelegate, UIImagePickerCont
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true, completion: nil)
         
-        guard let _ = info[.editedImage] as? UIImage else {
-            return
+        let mediaType = info[UIImagePickerController.InfoKey.mediaType] as! CFString
+        var fileName: String = ""
+        var mimeType: String = ""
+        
+        var url: String = ""
+        if directory != nil {
+            url = ServerApi.shared!.getFileUri(directory!)!.absoluteString
+        }
+        else {
+            url = ServerApi.shared!.getShareUri(share)!.absoluteString
+        }
+        
+        let assetPath = info[UIImagePickerController.InfoKey.referenceURL] as? NSURL
+        
+        if assetPath != nil {
+            let ext = assetPath!.absoluteString?.components(separatedBy: "ext=")[1].lowercased()
+            if ext == "png" || ext == "jpg" || ext == "heic" {
+                mimeType = "image/jpeg"
+            }
+            else {
+                if ext == "mp4" {
+                    mimeType = "video/mp4"
+                }
+                else if ext == "mov" {
+                    mimeType = "video/quicktime"
+                }
+                else if ext == "flv" {
+                    mimeType = "video/x-flv"
+                }
+                else if ext == "avi" {
+                    mimeType = "video/x-msvideo"
+                }
+            }
+        }
+        else {
+            if self.fileTypeNumber == 0 {
+                mimeType = "image/jpeg"
+            }
+            else {
+                mimeType = "video/quicktime"
+            }
+        }
+
+        switch mediaType {
+        case kUTTypeImage:
+            guard let image = info[.editedImage] as? UIImage else {
+                return
+            }
+            fileName = "IMG.jpeg"
+            let data: Data = image.jpegData(compressionQuality: 100)!
+            Network.shared.uploadFile(url, data: data, fileName: fileName, mime: mimeType) { success in
+             if success {
+                 self.showStatusAlert(title: "Image was successfully uploaded", true)
+             }
+             else {
+                 self.showStatusAlert(title: "An error occured while uploading the image", true)
+             }
+                 self.presenter.getFiles(self.share, directory: self.directory)
+            }
+
+            break
+        case kUTTypeMovie:
+            guard let videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? NSURL else {
+                return
+            }
+            do {
+                let data = try Data(contentsOf: videoURL as URL, options: .mappedIfSafe)
+                            print(data)
+                fileName = "VIDEO.mp4"
+                Network.shared.uploadFile(url, data: data, fileName: fileName, mime: mimeType) { success in
+                 if success {
+                    self.showStatusAlert(title: "Video was successfully uploaded", true)
+                 }
+                 else {
+                    self.showStatusAlert(title: "An error occured while uploading the video", true)
+                 }
+                    self.presenter.getFiles(self.share, directory: self.directory)
+                }
+            } catch {
+                print(error)
+            }
+            break
+        default:
+            break
         }
     }
 }
@@ -592,8 +679,28 @@ extension FilesViewController: UIDocumentPickerDelegate{
         guard let myURL = urls.first else {
             return
         }
+        var url: String = ""
+        if directory != nil {
+            url = ServerApi.shared!.getFileUri(directory!)!.absoluteString
+        }
+        else {
+            url = ServerApi.shared!.getShareUri(share)!.absoluteString
+        }
         
-        print("selected document url : \(myURL)")
-    }
-    
+        let fileName = myURL.lastPathComponent
+        let mimeType = "application/\(myURL.lastPathComponent.components(separatedBy: ".")[1])"
+        
+        do {
+         let data = try Data(contentsOf: myURL as URL, options: .mappedIfSafe)
+         Network.shared.uploadFile(url, data: data, fileName: fileName, mime: mimeType) { success in
+             if success {
+                 self.showStatusAlert(title: "Document was successfully uploaded", true)
+             }
+             else {
+                 self.showStatusAlert(title: "An error occured while uploading the document", true)
+             }
+             self.presenter.getFiles(self.share, directory: self.directory)
+           }
+         } catch  { return }
+      }
 }
